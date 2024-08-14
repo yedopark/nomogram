@@ -79,16 +79,22 @@ def calculate_e_data(df, volume, d_data_value):
 
 # Impulse 계산 (Impulse의 네 번째 시트에서 부피와 E_data에 해당하는 값)
 def calculate_impulse(df, volume, e_data_value):
-    volumes = df.columns.astype(float)
-    if volume in volumes:
-        column_data = df[volume]
-    else:
-        interp_function = interp1d(volumes, df.values, axis=1, fill_value="extrapolate")
-        column_data = pd.Series(interp_function(volume), index=df.index)
-    
-    interp_function_impulse = interp1d(df.index, column_data, fill_value="extrapolate", bounds_error=False)
-    return round(interp_function_impulse(e_data_value), 3)  # 소수점 셋째 자리에서 반올림
+    try:
+        volumes = df.columns.astype(float)
+        if volume in volumes:
+            column_data = df[volume]
+        else:
+            interp_function = interp1d(volumes, df.values, axis=1, fill_value="extrapolate")
+            column_data = pd.Series(interp_function(volume), index=df.index)
 
+        interp_function_impulse = interp1d(df.index, column_data, fill_value="extrapolate", bounds_error=False)
+        result = interp_function_impulse(e_data_value)
+        if np.isnan(result):
+            st.warning(f"NaN result encountered for volume: {volume}, e_data_value: {e_data_value}")
+        return round(result, 3)  # 소수점 셋째 자리에서 반올림
+    except Exception as e:
+        st.error(f"Error in calculating impulse: {e}")
+        return np.nan
 
 # 사용자에게 압력과 부피 입력 받기
 pressure_input = st.number_input("압력을 입력하세요:", min_value=0.0, step=1.0)
@@ -150,7 +156,13 @@ if st.button("계산 시작"):
     E_data = [calculate_e_data(df_third_sheet_impulse, volume_input, d) for d in D_data]
 
     # Impulse 계산
-    Impulse_data = [calculate_impulse(df_fourth_sheet_impulse, volume_input, e) for e in E_data]
+    Impulse_data = []
+    for e in E_data:
+        if np.isnan(e):
+            st.warning(f"Skipping Impulse calculation for NaN E_data value: {e}")
+            Impulse_data.append(np.nan)
+        else:
+            Impulse_data.append(calculate_impulse(df_fourth_sheet_impulse, volume_input, e))
 
     progress_bar.progress(90)
     status_text.text("Finalizing data...")
