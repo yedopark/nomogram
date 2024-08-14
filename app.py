@@ -77,7 +77,6 @@ def calculate_e_data(df, volume, d_data_value):
     interp_function_e = interp1d(df.index, column_data, fill_value="extrapolate", bounds_error=False)
     return interp_function_e(d_data_value)
 
-# Impulse 계산 (Impulse의 네 번째 시트에서 부피와 E_data에 해당하는 값)
 def calculate_impulse(df, volume, e_data_value):
     try:
         volumes = df.columns.astype(float)
@@ -89,12 +88,16 @@ def calculate_impulse(df, volume, e_data_value):
 
         interp_function_impulse = interp1d(df.index, column_data, fill_value="extrapolate", bounds_error=False)
         result = interp_function_impulse(e_data_value)
-        if np.isnan(result):
+
+        if np.isnan(result).any():
             st.warning(f"NaN result encountered for volume: {volume}, e_data_value: {e_data_value}")
-        return round(result, 3)  # 소수점 셋째 자리에서 반올림
+
+        # 배열 대신 단일 값으로 반환하도록 수정
+        return round(float(result), 3)
     except Exception as e:
         st.error(f"Error in calculating impulse: {e}")
         return np.nan
+
 
 # 사용자에게 압력과 부피 입력 받기
 pressure_input = st.number_input("압력을 입력하세요:", min_value=0.0, step=1.0)
@@ -179,7 +182,7 @@ if st.button("계산 시작"):
 
     # 결과를 엑셀 파일로 저장
     output_df = pd.DataFrame({
-        'First_Sheet_Index': df_first_sheet_overpressure.index[:min_length],
+        'Disatance': df_first_sheet_overpressure.index[:min_length],
         'A_data': A_data,
         'B_data': B_data_interpolated,
         'Overpressure': overpressure_values,
@@ -200,19 +203,19 @@ if st.button("계산 시작"):
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
     # 첫 번째 그래프: Overpressure (y축 로그 스케일)
-    axs[0].plot(output_df['First_Sheet_Index'], output_df['Overpressure'], marker='o', linestyle='-')
+    axs[0].plot(output_df['Disatance'], output_df['Overpressure'], marker='o', linestyle='-')
     axs[0].set_xscale('linear')
     axs[0].set_yscale('log')
-    axs[0].set_xlabel('First_Sheet_Index')
+    axs[0].set_xlabel('Disatance')
     axs[0].set_ylabel('Overpressure (log scale)')
-    axs[0].set_title('Overpressure vs First_Sheet_Index (Log Scale)')
+    axs[0].set_title('Overpressure vs Disatance (Log Scale)')
 
     # 두 번째 그래프: Impulse
-    axs[1].plot(output_df['First_Sheet_Index'], output_df['Impulse'], marker='o', linestyle='-')
+    axs[1].plot(output_df['Disatance'], output_df['Impulse'], marker='o', linestyle='-')
     axs[1].set_xscale('linear')
     axs[1].set_yscale('linear')
-    axs[1].set_xlabel('First_Sheet_Index')
+    axs[1].set_xlabel('Disatance')
     axs[1].set_ylabel('Impulse')
-    axs[1].set_title('Impulse vs First_Sheet_Index')
+    axs[1].set_title('Impulse vs Disatance')
 
     st.pyplot(fig)
