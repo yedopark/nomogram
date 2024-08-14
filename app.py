@@ -8,9 +8,15 @@ import streamlit as st
 st.title("Nomogram Analysis")
 st.write("This application calculates and visualizes data based on input pressure and volume.")
 
-# 엑셀 파일 경로 (GitHub 레포지토리 내 상대 경로로 수정)
-overpressure_file_path = r'overpressure_distance_nomogram.xlsx'
-impulse_file_path = r'impulse_distance_nomogram.xlsx'
+# 엑셀 파일 경로 (분리된 파일 경로로 수정)
+overpressure_1_file_path = r'overpressure_1.xlsx'
+overpressure_2_file_path = r'overpressure_2.xlsx'
+overpressure_3_file_path = r'overpressure_3.xlsx'
+
+impulse_1_file_path = r'impulse_1.xlsx'
+impulse_2_file_path = r'impulse_2.xlsx'
+impulse_3_file_path = r'impulse_3.xlsx'
+impulse_4_file_path = r'impulse_4.xlsx'
 
 # 진행 상황 표시
 progress_bar = st.progress(0)
@@ -23,14 +29,14 @@ volume_input = st.number_input("부피를 입력하세요:", min_value=0.0, step
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
     status_text.text("Loading Excel files...")
-    df_first_sheet_overpressure = pd.read_excel(overpressure_file_path, sheet_name=0, index_col=0)
-    df_second_sheet_overpressure = pd.read_excel(overpressure_file_path, sheet_name=1, index_col=0)
-    df_third_sheet_overpressure = pd.read_excel(overpressure_file_path, sheet_name=2, index_col=0)
+    df_first_sheet_overpressure = pd.read_excel(overpressure_1_file_path, index_col=0)
+    df_second_sheet_overpressure = pd.read_excel(overpressure_2_file_path, index_col=0)
+    df_third_sheet_overpressure = pd.read_excel(overpressure_3_file_path, index_col=0)
     
-    df_first_sheet_impulse = pd.read_excel(impulse_file_path, sheet_name=0, index_col=0)
-    df_second_sheet_impulse = pd.read_excel(impulse_file_path, sheet_name=1, index_col=0)
-    df_third_sheet_impulse = pd.read_excel(impulse_file_path, sheet_name=2, index_col=0)
-    df_fourth_sheet_impulse = pd.read_excel(impulse_file_path, sheet_name=3, index_col=0)
+    df_first_sheet_impulse = pd.read_excel(impulse_1_file_path, index_col=0)
+    df_second_sheet_impulse = pd.read_excel(impulse_2_file_path, index_col=0)
+    df_third_sheet_impulse = pd.read_excel(impulse_3_file_path, index_col=0)
+    df_fourth_sheet_impulse = pd.read_excel(impulse_4_file_path, index_col=0)
     
     progress_bar.progress(20)
     status_text.text("Calculating A_data...")
