@@ -3,9 +3,10 @@ from scipy.interpolate import interp1d
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
+from io import BytesIO
 
 # Streamlit 설정
-st.title("Hydrogen Tank Explosion Overpressure and Impulse Predicton Program")
+st.title("Hydrogen Tank Explosion Overpressure and Impulse Prediction Program")
 st.write("This application calculates and visualizes data based on input pressure and volume.")
 
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
@@ -91,9 +92,8 @@ def calculate_impulse(df, volume, e_data_value):
         result = interp_function_impulse(e_data_value)
 
         if np.isnan(result).any():
-            st.warning(f"NaN result encountered for volume: {volume}, e_data_value: {e_data_value}")
+            return np.nan  # NaN이 포함된 경우 경고 없이 NaN 반환
 
-        # 배열 대신 단일 값으로 반환하도록 수정
         return round(float(result), 3)
     except Exception as e:
         st.error(f"Error in calculating impulse: {e}")
@@ -161,11 +161,7 @@ if st.button("계산 시작"):
     # Impulse 계산
     Impulse_data = []
     for e in E_data:
-        if np.isnan(e):
-            st.warning(f"Skipping Impulse calculation for NaN E_data value: {e}")
-            Impulse_data.append(np.nan)
-        else:
-            Impulse_data.append(calculate_impulse(df_fourth_sheet_impulse, volume_input, e))
+        Impulse_data.append(calculate_impulse(df_fourth_sheet_impulse, volume_input, e))
 
     progress_bar.progress(90)
     status_text.text("Finalizing data...")
@@ -226,7 +222,13 @@ if st.button("계산 시작"):
     axs[0].plot(filtered_output_df['Distance (m)'], filtered_output_df['Overpressure (kPa)'], marker='o', linestyle='-')
     axs[0].set_xscale('linear')
     axs[0].set_yscale('log')
-    axs[0].set_xlim([0, 100])  # x축 범위를 0~100m로 설정
+
+    # x축 범위 설정 (Distance의 마지막 데이터가 100보다 작을 경우 해당 범위로 설정)
+    if filtered_output_df['Distance (m)'].iloc[-1] < 100:
+        axs[0].set_xlim([filtered_output_df['Distance (m)'].iloc[0], filtered_output_df['Distance (m)'].iloc[-1]])
+    else:
+        axs[0].set_xlim([0, 100])
+
     axs[0].set_xlabel('Distance (m)')
     axs[0].set_ylabel('Overpressure (kPa)')
     axs[0].set_title('Overpressure vs Distance (Log Scale)')
@@ -235,9 +237,21 @@ if st.button("계산 시작"):
     axs[1].plot(filtered_output_df['Distance (m)'], filtered_output_df['Impulse (kPa*s)'], marker='o', linestyle='-')
     axs[1].set_xscale('linear')
     axs[1].set_yscale('linear')
-    axs[1].set_xlim([0, 100])  # x축 범위를 0~100m로 설정
+
+    # x축 범위 설정 (Distance의 마지막 데이터가 100보다 작을 경우 해당 범위로 설정)
+    if filtered_output_df['Distance (m)'].iloc[-1] < 100:
+        axs[1].set_xlim([filtered_output_df['Distance (m)'].iloc[0], filtered_output_df['Distance (m)'].iloc[-1]])
+    else:
+        axs[1].set_xlim([0, 100])
+
     axs[1].set_xlabel('Distance (m)')
     axs[1].set_ylabel('Impulse (kPa*s)')
     axs[1].set_title('Impulse vs Distance')
 
     st.pyplot(fig)
+
+    # 그래프 이미지를 다운로드할 수 있는 버튼 추가
+    buffer = BytesIO()
+    fig.savefig(buffer, format='png')
+    buffer.seek(0)
+    st.download_button('Download Graph Image', buffer, file_name='graph.png', mime='image/png')
