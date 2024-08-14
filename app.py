@@ -77,6 +77,7 @@ def calculate_e_data(df, volume, d_data_value):
     interp_function_e = interp1d(df.index, column_data, fill_value="extrapolate", bounds_error=False)
     return interp_function_e(d_data_value)
 
+# Impulse 계산 (Impulse의 네 번째 시트에서 부피와 E_data에 해당하는 값)
 def calculate_impulse(df, volume, e_data_value):
     try:
         volumes = df.columns.astype(float)
@@ -97,7 +98,6 @@ def calculate_impulse(df, volume, e_data_value):
     except Exception as e:
         st.error(f"Error in calculating impulse: {e}")
         return np.nan
-
 
 # 사용자에게 압력과 부피 입력 받기
 pressure_input = st.number_input("압력을 입력하세요:", min_value=0.0, step=1.0)
@@ -129,10 +129,10 @@ if st.button("계산 시작"):
     if volume_input in df_second_sheet_overpressure.columns:
         B_data = df_second_sheet_overpressure[volume_input]
     else:
-        interp_function_B = interp1d(df_second_sheet_overpressure.columns.astype(float), df_second_sheet_overpressure.values, axis=1, fill_value="extrapolate")
-        B_data = pd.Series(interp_function_B(volume_input), index=df_second_sheet_overpressure.index)
+        interp_function_B = interp1d(df_second_sheet_overpressure.columns.astype(float), df.second_sheet_overpressure.values, axis=1, fill_value="extrapolate")
+        B_data = pd.Series(interp_function_B(volume_input), index=df.second_sheet_overpressure.index)
 
-    interp_function_A = interp1d(df_second_sheet_overpressure.index, B_data, fill_value="extrapolate", bounds_error=False)
+    interp_function_A = interp1d(df.second_sheet_overpressure.index, B_data, fill_value="extrapolate", bounds_error=False)
     B_data_interpolated = pd.Series(interp_function_A(A_data), index=A_data.index)
     B_data_interpolated[B_data_interpolated <= 0] = np.nan  # B_data에서 0 또는 음수 값을 NaN으로 변환
 
@@ -180,42 +180,5 @@ if st.button("계산 시작"):
     E_data = E_data[:min_length]
     Impulse_data = Impulse_data[:min_length]
 
-    # 결과를 엑셀 파일로 저장
-    output_df = pd.DataFrame({
-        'Disatance': df_first_sheet_overpressure.index[:min_length],
-        'A_data': A_data,
-        'B_data': B_data_interpolated,
-        'Overpressure': overpressure_values,
-        'C_data': C_data,
-        'D_data': D_data,
-        'E_data': E_data,
-        'Impulse': Impulse_data
-    })
-
-    output_file_path = 'output_pressure_volume_data_with_impulse.xlsx'
-    output_df.to_excel(output_file_path, index=False)
-
-    progress_bar.progress(100)
-    status_text.text(f"Calculation complete. Results saved to {output_file_path}")
-
-    # 그래프 생성
-    st.write("### Graphs")
-    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
-
-    # 첫 번째 그래프: Overpressure (y축 로그 스케일)
-    axs[0].plot(output_df['Disatance'], output_df['Overpressure'], marker='o', linestyle='-')
-    axs[0].set_xscale('linear')
-    axs[0].set_yscale('log')
-    axs[0].set_xlabel('Disatance')
-    axs[0].set_ylabel('Overpressure (log scale)')
-    axs[0].set_title('Overpressure vs Disatance (Log Scale)')
-
-    # 두 번째 그래프: Impulse
-    axs[1].plot(output_df['Disatance'], output_df['Impulse'], marker='o', linestyle='-')
-    axs[1].set_xscale('linear')
-    axs[1].set_yscale('linear')
-    axs[1].set_xlabel('Disatance')
-    axs[1].set_ylabel('Impulse')
-    axs[1].set_title('Impulse vs Disatance')
-
-    st.pyplot(fig)
+    # 필요한 데이터만 포함된 최종 출력 파일 생성
+    output_df_minimal = pd
