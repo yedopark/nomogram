@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 # Streamlit 설정
-st.title("Nomogram Analysis")
+st.title("Hydrogen Tank Explosion Overpressure and Impulse Predicton Program")
 st.write("This application calculates and visualizes data based on input pressure and volume.")
 
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
