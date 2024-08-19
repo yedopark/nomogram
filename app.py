@@ -6,7 +6,7 @@ import streamlit as st
 from io import BytesIO
 
 # Streamlit 설정
-st.title("Hydrogen Tank Explosion Overpressure and Impulse Prediction Program")
+st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
 st.write("This application calculates and visualizes data based on input pressure and volume.")
 
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
