@@ -1,3 +1,28 @@
+"""
+Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse - version 1.0
+
+Description
+: This Python code calculates overpressure and impulse resulting from the explosion of a high-pressure hydrogen tank.
+It receives pressure and volume inputs from the user and uses nomogram data to compute the overpressure and impulse.
+The nomogram data is referenced from the paper "Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram"
+by Sergii Kashkarov, Zhiyong Li, and Vladimir Molkov. 
+Both the code and the nomogram data are uploaded on GitHub and can be accessed by anyone through the link "https://nomogram-mntketbfejckna9g4hqe52.streamlit.app/".
+
+Usage Guide:
+1. Input Values:
+   - Pressure (MPa): Enter the pressure value at which the tank explodes.
+   - Volume (Liters): Enter the volume of the hydrogen tank.
+   These inputs help in calculating the overpressure and impulse due to the explosion based on scientific models and empirical data.
+2. Output:
+   - The program outputs graphs showing the overpressure and impulse as a function of distance from the explosion site.
+   - Detailed data tables and downloadable Excel files containing the calculated values are also provided for further analysis.
+   
+Developer : Yedo Park, Energy Safety Lab, Pukyong National University
+Created on : 2024. 8. 20
+Last updated : 2024. 8. 20
+
+"""
+
 import pandas as pd
 from scipy.interpolate import interp1d
 import numpy as np
@@ -32,7 +57,8 @@ def calculate_physical_quantity(df, pressure):
         interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
         interpolated_values = interp_function(pressure)
         return pd.Series(interpolated_values, index=df.index)
-    
+ 
+# Overpressure 계산    
 def calculate_overpressure(df, pressure, b_data_value):
     if pressure not in df.columns:
         interp_function_pressure = interp1d(df.columns.astype(float), df.values, axis=1, fill_value="extrapolate")
@@ -231,7 +257,7 @@ if st.button("계산 시작"):
 
     axs[0].set_xlabel('Distance (m)')
     axs[0].set_ylabel('Overpressure (kPa)')
-    axs[0].set_title('Overpressure vs Distance (Log Scale)')
+    axs[0].set_title(f'{pressure_input}MPa, {volume_input}L ')
 
     # 두 번째 그래프: Impulse
     axs[1].plot(filtered_output_df['Distance (m)'], filtered_output_df['Impulse (kPa*s)'], marker='o', linestyle='-')
