@@ -38,7 +38,7 @@ university_logo_path = f"{image_directory}/university_logo.png"
 lab_logo_path = f"{image_directory}/lab_logo.png"
 
 # 컬럼을 이용한 제목과 로고 배치
-col1, col2, col3 = st.columns([2, 6])
+col1, col2 = st.columns([2, 6])
 
 with col1:
     # 연구실 로고 표시
