@@ -17,7 +17,7 @@ Usage Guide:
    - The program outputs graphs showing the overpressure and impulse as a function of distance from the explosion site.
    - Detailed data tables and downloadable Excel files containing the calculated values are also provided for further analysis.
    
-Developer : Yedo Park, Energy Safety Lab, Pukyong National University
+Developer : Ye do Park, Chang BO Oh, Energy Safety Lab, Pukyong National University
 Created on : 2024. 8. 20
 Last updated : 2024. 8. 20
 
@@ -29,11 +29,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 from io import BytesIO
+import requests
+from PIL import Image
 
 # Streamlit 설정
 st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
 st.write("This application calculates and visualizes data based on input pressure and volume.")
 
+# 이미지 파일 경로 설정 (엑셀 파일과 동일한 경로)
+image_directory = r'.'  # 현재 디렉토리
+university_logo_path = f"{image_directory}/university_logo.png"
+lab_logo_path = f"{image_directory}/lab_logo.png"
+
+# 컬럼을 이용한 로고 배치
+col1, col2 = st.columns(2)
+
+with col1:
+    # 대학교 로고 표시
+    university_logo = Image.open(university_logo_path)
+    st.image(university_logo, use_column_width=True)
+
+with col2:
+    # 연구실 로고 표시
+    lab_logo = Image.open(lab_logo_path)
+    st.image(lab_logo, use_column_width=True)
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
 overpressure_1_file_path = r'overpressure_1.xlsx'
 overpressure_2_file_path = r'overpressure_2.xlsx'
