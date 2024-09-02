@@ -41,8 +41,8 @@ image_directory = r'.'  # 현재 디렉토리
 university_logo_path = f"{image_directory}/university_logo.png"
 lab_logo_path = f"{image_directory}/lab_logo.png"
 
-# 컬럼을 이용한 로고 배치
-col1, col2 = st.columns(2)
+# 컬럼을 이용한 제목과 로고 배치
+col1, col2, col3 = st.columns([1, 6, 1])
 
 with col1:
     # 대학교 로고 표시
@@ -50,9 +50,15 @@ with col1:
     st.image(university_logo, use_column_width=True)
 
 with col2:
+    # 중앙의 제목
+    st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
+    st.write("This application calculates and visualizes data based on input pressure and volume.")
+
+with col3:
     # 연구실 로고 표시
     lab_logo = Image.open(lab_logo_path)
     st.image(lab_logo, use_column_width=True)
+    
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
 overpressure_1_file_path = r'overpressure_1.xlsx'
 overpressure_2_file_path = r'overpressure_2.xlsx'
