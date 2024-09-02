@@ -32,10 +32,6 @@ from io import BytesIO
 import requests
 from PIL import Image
 
-# Streamlit 설정
-st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
-st.write("This application calculates and visualizes data based on input pressure and volume.")
-
 # 이미지 파일 경로 설정 (엑셀 파일과 동일한 경로)
 image_directory = r'.'  # 현재 디렉토리
 university_logo_path = f"{image_directory}/university_logo.png"
