@@ -44,11 +44,18 @@ with col1:
     # 연구실 로고 표시
     lab_logo = Image.open(lab_logo_path)
     st.image(lab_logo, use_column_width=True)
+    
+    # 간격 추가
+    st.write("")
 
 with col2:
-    # 중앙의 제목
+    # 중앙의 제목, 폰트 크기 옵션 추가
     st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
-    st.write("This application calculates and visualizes data based on input pressure and volume.")
+    font_size = st.slider("Title Font Size", 20, 40, 30)  # 폰트 크기 조절 슬라이더 추가
+    st.markdown(
+        f'<p style="font-size:{font_size}px;">This application calculates and visualizes data based on input pressure and volume.</p>',
+        unsafe_allow_html=True
+    )
     
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
 overpressure_1_file_path = r'overpressure_1.xlsx'
