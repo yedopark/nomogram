@@ -297,3 +297,13 @@ if st.button("계산 시작"):
     fig.savefig(buffer, format='png')
     buffer.seek(0)
     st.download_button('Download Graph Image', buffer, file_name='graph.png', mime='image/png')
+
+# 저작권 표시 추가
+st.markdown("---")  # 구분선을 추가하여 시각적으로 구분
+st.markdown(
+    """
+    <p style="text-align: center; color: gray; font-size: 12px;">
+    © 2024 Pukyong National University. All rights reserved.
+    </p>
+    """, unsafe_allow_html=True
+)
