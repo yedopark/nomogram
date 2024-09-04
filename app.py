@@ -187,6 +187,13 @@ if st.button("계산 시작"):
     progress_bar.progress(70)
     status_text.text("Calculating C_data...")
 
+    # 엑셀 파일 읽기
+    df_first_sheet_impulse = pd.read_excel(impulse_1_file_path, index_col=0)
+
+    # Distance_2 (m) 배열로 저장 (첫 번째 열의 데이터)
+    Distance_2 = df_first_sheet_impulse.index.values    
+
+
     # C_data 계산
     C_data = calculate_c_data(df_first_sheet_impulse, pressure_input)
     C_data[C_data <= 0] = np.nan  # C_data에서 0 또는 음수 값을 NaN으로 변환
@@ -209,18 +216,19 @@ if st.button("계산 시작"):
     status_text.text("Finalizing data...")
 
    # 필요한 데이터만 포함된 최종 출력 파일 생성
-    min_length_1 = min(len(A_data), len(B_data_interpolated), len(overpressure_values))
-    min_length_2 = min(len(C_data), len(D_data), len(E_data), len(Impulse_data))
+    min_length_1 = min(len(A_data.dropna()), len(B_data_interpolated.dropna()), len(overpressure_values.dropna()))
+    min_length_2 = min(len(Distance_2), len(C_data), len(D_data), len(E_data), len(Impulse_data),)
 
     # 첫 번째 시트용 데이터
     output_df_1 = pd.DataFrame({
-        'Distance (m)': df_first_sheet_overpressure.index[:min_length_1],
+        'Distance_1 (m)': df_first_sheet_overpressure.index[:min_length_1],
         'A_data': A_data[:min_length_1],
         'Overpressure (kPa)': overpressure_values[:min_length_1],
     })
 
     # 두 번째 시트용 데이터
     output_df_2 = pd.DataFrame({
+        'Distance_2 (m)': Distance_2[:min_length_2],
         'C_data': C_data[:min_length_2],
         'D_data': D_data[:min_length_2],
         'E_data': E_data[:min_length_2],
@@ -263,14 +271,14 @@ if st.button("계산 시작"):
     axs[0].set_ylabel('Overpressure (kPa)')
     axs[0].set_title(f'{pressure_input}MPa, {volume_input}L ')
 
-    # 두 번째 그래프: Impulse
-    axs[1].plot(filtered_output_df_2['C_data'], filtered_output_df_2['Impulse (kPa*s)'], marker='o', linestyle='-')
+    # 두 번째 그래프: Impulse (x축을 Distance_2로 설정)
+    axs[1].plot(filtered_output_df_2['Distance_2 (m)'], filtered_output_df_2['Impulse (kPa*s)'], marker='o', linestyle='-')
     axs[1].set_xscale('linear')
     axs[1].set_yscale('linear')
 
-    axs[1].set_xlabel('C_data')
+    axs[1].set_xlabel('Distance_2 (m)')
     axs[1].set_ylabel('Impulse (kPa*s)')
-    axs[1].set_title('Impulse vs C_data')
+    axs[1].set_title('Impulse vs Distance_2 (m)')
 
     st.pyplot(fig)
 
