@@ -209,25 +209,25 @@ if st.button("계산 시작"):
     status_text.text("Finalizing data...")
 
    # 배열들의 길이를 동일하게 맞춤
-   min_length = min(len(A_data), len(B_data_interpolated), len(overpressure_values), len(C_data), len(D_data), len(E_data), len(Impulse_data))
+    min_length = min(len(A_data), len(B_data_interpolated), len(overpressure_values), len(C_data), len(D_data), len(E_data), len(Impulse_data))
 
    # 각 배열을 동일한 길이로 자르기
-   A_data = A_data.iloc[:min_length]
-   B_data_interpolated = B_data_interpolated.iloc[:min_length]
-   overpressure_values = overpressure_values.iloc[:min_length]
-   C_data = C_data[:min_length]
-   D_data = D_data[:min_length]
-   E_data = E_data[:min_length]
-   Impulse_data = Impulse_data[:min_length]
+    A_data = A_data.iloc[:min_length]
+    B_data_interpolated = B_data_interpolated.iloc[:min_length]
+    overpressure_values = overpressure_values.iloc[:min_length]
+    C_data = C_data[:min_length]
+    D_data = D_data[:min_length]
+    E_data = E_data[:min_length]
+    Impulse_data = Impulse_data[:min_length]
    
    # 배열 길이 확인 (디버깅용)
-   st.write(f"A_data 길이: {len(A_data)}")
-   st.write(f"B_data 길이: {len(B_data_interpolated)}")
-   st.write(f"Overpressure 길이: {len(overpressure_values)}")
-   st.write(f"C_data 길이: {len(C_data)}")
-   st.write(f"D_data 길이: {len(D_data)}")
-   st.write(f"E_data 길이: {len(E_data)}")
-   st.write(f"Impulse 길이: {len(Impulse_data)}")
+    st.write(f"A_data 길이: {len(A_data)}")
+    st.write(f"B_data 길이: {len(B_data_interpolated)}")
+    st.write(f"Overpressure 길이: {len(overpressure_values)}")
+    st.write(f"C_data 길이: {len(C_data)}")
+    st.write(f"D_data 길이: {len(D_data)}")
+    st.write(f"E_data 길이: {len(E_data)}")
+    st.write(f"Impulse 길이: {len(Impulse_data)}")
 
     # 필요한 데이터만 포함된 최종 출력 파일 생성
     output_df_minimal = pd.DataFrame({
