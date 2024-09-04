@@ -306,6 +306,7 @@ st.markdown(
     """
     <p style="text-align: center; color: gray; font-size: 12px;">
     © 2024 Energy Safety Laboratory, Pukyong National University. All rights reserved.<br>
+    Reference: Kashkarov, S., Li, Z., & Molkov, V. (2021). Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram. International Journal of Hydrogen Energy, 46(58), 29900-29909.
     </p>
     """, unsafe_allow_html=True
 )
