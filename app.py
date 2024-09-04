@@ -273,12 +273,6 @@ if st.button("계산 시작"):
     axs[0].set_xscale('linear')
     axs[0].set_yscale('log')
 
-    # x축 범위 설정 (Distance의 마지막 데이터가 100보다 작을 경우 해당 범위로 설정)
-    if filtered_output_df['Distance (m)'].iloc[-1] < 100:
-        axs[0].set_xlim([filtered_output_df['Distance (m)'].iloc[0], filtered_output_df['Distance (m)'].iloc[-1]])
-    else:
-        axs[0].set_xlim([0, 100])
-
     axs[0].set_xlabel('Distance (m)')
     axs[0].set_ylabel('Overpressure (kPa)')
     axs[0].set_title(f'{pressure_input}MPa, {volume_input}L ')
