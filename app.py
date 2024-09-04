@@ -50,7 +50,7 @@ with col2:
     st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
     st.write("This application calculates and visualizes data based on input pressure and volume.")
     st.write("Reference: Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram
-by Sergii Kashkarov, Zhiyong Li, and Vladimir Molkov.")
+by Sergii Kashkarov, Zhiyong Li, and Vladimir Molkov")
    
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
 overpressure_1_file_path = r'overpressure_1.xlsx'
