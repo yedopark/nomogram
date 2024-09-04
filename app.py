@@ -29,10 +29,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 from io import BytesIO
+import requests
+from PIL import Image
 
-# Streamlit 설정
-st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
-st.write("This application calculates and visualizes data based on input pressure and volume.")
+# 이미지 파일 경로 설정 (엑셀 파일과 동일한 경로)
+image_directory = r'.'  # 현재 디렉토리
+university_logo_path = f"{image_directory}/university_logo.png"
+lab_logo_path = f"{image_directory}/lab_logo.png"
+
+# 컬럼을 이용한 로고와 제목 배치
+col1, col2 = st.columns([2.5, 6.5])
+
+with col1:
+    # 연구실 로고 표시
+    lab_logo = Image.open(lab_logo_path)
+    st.image(lab_logo, use_column_width=True)
+
+with col2:
+    # 중앙의 제목
+    st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
+    st.write("This application calculates and visualizes data based on input pressure and volume.")
 
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
 overpressure_1_file_path = r'overpressure_1.xlsx'
@@ -281,3 +297,14 @@ if st.button("계산 시작"):
     fig.savefig(buffer, format='png')
     buffer.seek(0)
     st.download_button('Download Graph Image', buffer, file_name='graph.png', mime='image/png')
+
+# 저작권 표시 추가
+st.markdown("---")  # 구분선을 추가하여 시각적으로 구분
+st.markdown(
+    """
+    <p style="text-align: center; color: gray; font-size: 12px;">
+    © 2024 Energy Safety Laboratory, Pukyong National University. All rights reserved.<br>
+    Reference: Kashkarov, S., Li, Z., & Molkov, V. (2021). Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram. International Journal of Hydrogen Energy, 46(58), 29900-29909.
+    </p>
+    """, unsafe_allow_html=True
+)
