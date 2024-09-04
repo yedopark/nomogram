@@ -73,7 +73,7 @@ def calculate_physical_quantity(df, pressure):
         interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
         interpolated_values = interp_function(pressure)
         return pd.Series(interpolated_values, index=df.index)
- 
+
 # Overpressure 계산    
 def calculate_overpressure(df, pressure, b_data_value):
     if pressure not in df.columns:
@@ -142,8 +142,8 @@ def calculate_impulse(df, volume, e_data_value):
         return np.nan
 
 # 사용자에게 압력과 부피 입력 받기
-pressure_input = st.number_input("압력을 입력하세요:", min_value=0.0, step=1.0)
-volume_input = st.number_input("부피를 입력하세요:", min_value=0.0, step=1.0)
+pressure_input = st.number_input("압력을 입력하세요(MPa):", min_value=0.0, step=1.0)
+volume_input = st.number_input("부피를 입력하세요(L):", min_value=0.0, step=1.0)
 
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
@@ -208,94 +208,39 @@ if st.button("계산 시작"):
     progress_bar.progress(90)
     status_text.text("Finalizing data...")
 
-    st.write(f"A_data 길이: {len(A_data)}")
-    st.write(f"B_data 길이: {len(B_data_interpolated)}")
-    st.write(f"Overpressure 길이: {len(overpressure_values)}")
-    st.write(f"C_data 길이: {len(C_data)}")
-    st.write(f"D_data 길이: {len(D_data)}")
-    st.write(f"E_data 길이: {len(E_data)}")
-    st.write(f"Impulse_data 길이: {len(Impulse_data)}")
-
-
-    # 첫 번째 시트에 저장할 데이터프레임 생성
-    df_first_sheet = pd.DataFrame({
-        'Distance (m)': df_first_sheet_overpressure.index[:len(A_data)],
-        'A_data': A_data,
-        'B_data': B_data_interpolated,
-        'Overpressure (kPa)': overpressure_values
+    # 첫 번째 DataFrame의 가장 작은 배열 길이에 맞추기 (길이 270 기준)
+    min_length_270 = min(len(A_data), len(B_data_interpolated), len(overpressure_values))
+    df_270 = pd.DataFrame({
+        'Distance (m)': df_first_sheet_overpressure.index[:min_length_270],
+        'A_data': A_data[:min_length_270],
+        'B_data': B_data_interpolated[:min_length_270],
+        'Overpressure (kPa)': overpressure_values[:min_length_270]
     })
 
-    # 배열들의 길이를 동일하게 맞춤 (가장 짧은 길이에 맞추기)
-    min_length_impulse = min(len(C_data), len(D_data), len(E_data), len(Impulse_data))
-
-    C_data = C_data[:min_length_impulse]
-    D_data = D_data[:min_length_impulse]
-    E_data = E_data[:min_length_impulse]
-    Impulse_data = Impulse_data[:min_length_impulse]
-
-    # Distance 값도 같은 길이로 자르기
-    distance_impulse = df_first_sheet_overpressure.index[:min_length_impulse]
-
-    # 두 번째 시트에 저장할 데이터프레임 생성
-    df_second_sheet = pd.DataFrame({
-        'Distance (m)': distance_impulse,  # Distance는 길이를 맞춘 값 사용
-        'C_data': C_data,
-        'D_data': D_data,
-        'E_data': E_data,
-        'Impulse (kPa*s)': Impulse_data
+    # 두 번째 DataFrame의 가장 작은 배열 길이에 맞추기 (길이 390 기준)
+    min_length_390 = min(len(C_data), len(D_data), len(E_data), len(Impulse_data))
+    df_390 = pd.DataFrame({
+        'C_data': C_data[:min_length_390],
+        'D_data': D_data[:min_length_390],
+        'E_data': E_data[:min_length_390],
+        'Impulse (kPa*s)': Impulse_data[:min_length_390]
     })
 
+    # 결과를 엑셀 파일로 저장
+    df_270.to_excel('output_270_data.xlsx', index=False)
+    df_390.to_excel('output_390_data.xlsx', index=False)
 
+    # 두 DataFrame을 화면에 출력
+    st.write("First DataFrame (length 270):")
+    st.write(df_270)
 
-    # 엑셀 파일에 저장 (첫번째 시트와 두번째 시트에 각각 데이터 저장)
-    output_file_path = 'output_pressure_volume_data_with_impulse.xlsx'
+    st.write("Second DataFrame (length 390):")
+    st.write(df_390)
 
-    with pd.ExcelWriter(output_file_path, engine='xlsxwriter') as writer:
-        df_first_sheet.to_excel(writer, sheet_name='Overpressure', index=False)
-        df_second_sheet.to_excel(writer, sheet_name='Impulse', index=False)
+    # 두 엑셀 파일을 다운로드할 수 있는 버튼 추가
+    with open('output_270_data.xlsx', 'rb') as f:
+        st.download_button('Download 270 Data Excel File', f, file_name='output_270_data.xlsx')
 
-    # 엑셀 파일을 다운로드할 수 있는 버튼 추가
-    with open(output_file_path, 'rb') as f:
-        st.download_button('Download Full Output Excel File', f, file_name=output_file_path)
+    with open('output_390_data.xlsx', 'rb') as f:
+        st.download_button('Download 390 Data Excel File', f, file_name='output_390_data.xlsx')
 
-    # 그래프 생성
-    st.write("### Graphs")
-    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
-
-    # 첫 번째 그래프: Overpressure (y축 로그 스케일)
-    filtered_df_first = df_first_sheet[df_first_sheet['Overpressure (kPa)'] > 0]  # 0 이상의 데이터만 필터링
-    axs[0].plot(filtered_df_first['Distance (m)'], filtered_df_first['Overpressure (kPa)'], marker='o', linestyle='-')
-    axs[0].set_xscale('linear')
-    axs[0].set_yscale('log')
-    axs[0].set_xlabel('Distance (m)')
-    axs[0].set_ylabel('Overpressure (kPa)')
-    axs[0].set_title(f'{pressure_input}MPa, {volume_input}L ')
-
-    # 두 번째 그래프: Impulse
-    filtered_df_second = df_second_sheet[df_second_sheet['Impulse (kPa*s)'] > 0]  # 0 이상의 데이터만 필터링
-    axs[1].plot(filtered_df_second['Distance (m)'], filtered_df_second['Impulse (kPa*s)'], marker='o', linestyle='-')
-    axs[1].set_xscale('linear')
-    axs[1].set_yscale('linear')
-    axs[1].set_xlabel('Distance (m)')
-    axs[1].set_ylabel('Impulse (kPa*s)')
-    axs[1].set_title('Impulse vs Distance')
-
-    st.pyplot(fig)
-
-    # 그래프 이미지를 다운로드할 수 있는 버튼 추가
-    buffer = BytesIO()
-    fig.savefig(buffer, format='png')
-    buffer.seek(0)
-    st.download_button('Download Graph Image', buffer, file_name='graph.png', mime='image/png')
-
-
-# 저작권 표시 추가
-st.markdown("---")  # 구분선을 추가하여 시각적으로 구분
-st.markdown(
-    """
-    <p style="text-align: center; color: gray; font-size: 12px;">
-    © 2024 Energy Safety Laboratory, Pukyong National University. All rights reserved.<br>
-    Reference: Kashkarov, S., Li, Z., & Molkov, V. (2021). Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram. International Journal of Hydrogen Energy, 46(58), 29900-29909.
-    </p>
-    """, unsafe_allow_html=True
-)
