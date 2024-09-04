@@ -230,6 +230,7 @@ if st.button("계산 시작"):
     output_df_1 = pd.DataFrame({
         'Distance_1 (m)': pd.Series(df_first_sheet_overpressure.index[:min_length_1], index=index_1),
         'A_data': pd.Series(A_data[:min_length_1], index=index_1),
+        'B_data_interpolated': B_data_interpolated.dropna()[:min_length_1],  # B_data_interpolated 추가
         'Overpressure (kPa)': pd.Series(overpressure_values[:min_length_1], index=index_1),
     })
 
