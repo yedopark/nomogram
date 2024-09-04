@@ -208,22 +208,35 @@ if st.button("계산 시작"):
     progress_bar.progress(90)
     status_text.text("Finalizing data...")
 
-    # 첫 번째 DataFrame의 가장 작은 배열 길이에 맞추기 (길이 270 기준)
-    min_length_270 = min(len(A_data), len(B_data_interpolated), len(overpressure_values))
+    # 배열의 길이 확인
+    max_length_270 = max(len(A_data), len(B_data_interpolated), len(overpressure_values))
+    max_length_390 = max(len(C_data), len(D_data), len(E_data), len(Impulse_data))
+
+    # 길이가 짧은 배열에 NaN 값을 추가하여 길이를 맞춤 (270 기준)
+    A_data_padded = A_data.reindex(range(max_length_270), fill_value=np.nan)
+    B_data_padded = B_data_interpolated.reindex(range(max_length_270), fill_value=np.nan)
+    overpressure_padded = overpressure_values.reindex(range(max_length_270), fill_value=np.nan)
+
+    # 길이가 짧은 배열에 NaN 값을 추가하여 길이를 맞춤 (390 기준)
+    C_data_padded = pd.Series(C_data).reindex(range(max_length_390), fill_value=np.nan)
+    D_data_padded = pd.Series(D_data).reindex(range(max_length_390), fill_value=np.nan)
+    E_data_padded = pd.Series(E_data).reindex(range(max_length_390), fill_value=np.nan)
+    Impulse_data_padded = pd.Series(Impulse_data).reindex(range(max_length_390), fill_value=np.nan)
+
+    # DataFrame 생성 (270 기준)
     df_270 = pd.DataFrame({
-        'Distance (m)': df_first_sheet_overpressure.index[:min_length_270],
-        'A_data': A_data[:min_length_270],
-        'B_data': B_data_interpolated[:min_length_270],
-        'Overpressure (kPa)': overpressure_values[:min_length_270]
+        'Distance (m)': df_first_sheet_overpressure.index[:max_length_270].union(pd.Index(range(max_length_270))),
+        'A_data': A_data_padded,
+        'B_data': B_data_padded,
+        'Overpressure (kPa)': overpressure_padded
     })
 
-    # 두 번째 DataFrame의 가장 작은 배열 길이에 맞추기 (길이 390 기준)
-    min_length_390 = min(len(C_data), len(D_data), len(E_data), len(Impulse_data))
+    # DataFrame 생성 (390 기준)
     df_390 = pd.DataFrame({
-        'C_data': C_data[:min_length_390],
-        'D_data': D_data[:min_length_390],
-        'E_data': E_data[:min_length_390],
-        'Impulse (kPa*s)': Impulse_data[:min_length_390]
+        'C_data': C_data_padded,
+        'D_data': D_data_padded,
+        'E_data': E_data_padded,
+        'Impulse (kPa*s)': Impulse_data_padded
     })
 
     # 결과를 엑셀 파일로 저장
@@ -244,3 +257,41 @@ if st.button("계산 시작"):
     with open('output_390_data.xlsx', 'rb') as f:
         st.download_button('Download 390 Data Excel File', f, file_name='output_390_data.xlsx')
 
+    # 그래프 생성
+    st.write("### Graphs")
+    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+
+    # 첫 번째 그래프: Overpressure (y축 로그 스케일)
+    axs[0].plot(df_270['Distance (m)'], df_270['Overpressure (kPa)'], marker='o', linestyle='-')
+    axs[0].set_xscale('linear')
+    axs[0].set_yscale('log')
+    axs[0].set_xlabel('Distance (m)')
+    axs[0].set_ylabel('Overpressure (kPa)')
+    axs[0].set_title(f'{pressure_input}MPa, {volume_input}L')
+
+    # 두 번째 그래프: Impulse
+    axs[1].plot(df_390.index, df_390['Impulse (kPa*s)'], marker='o', linestyle='-')
+    axs[1].set_xscale('linear')
+    axs[1].set_yscale('linear')
+    axs[1].set_xlabel('Index')
+    axs[1].set_ylabel('Impulse (kPa*s)')
+    axs[1].set_title('Impulse vs Index')
+
+    st.pyplot(fig)
+
+    # 그래프 이미지를 다운로드할 수 있는 버튼 추가
+    buffer = BytesIO()
+    fig.savefig(buffer, format='png')
+    buffer.seek(0)
+    st.download_button('Download Graph Image', buffer, file_name='graph.png', mime='image/png')
+
+# 저작권 표시 추가
+st.markdown("---")  # 구분선을 추가하여 시각적으로 구분
+st.markdown(
+    """
+    <p style="text-align: center; color: gray; font-size: 12px;">
+    © 2024 Energy Safety Laboratory, Pukyong National University. All rights reserved.<br>
+    Reference: Kashkarov, S., Li, Z., & Molkov, V. (2021). Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram. International Journal of Hydrogen Energy, 46(58), 29900-29909.
+    </p>
+    """, unsafe_allow_html=True
+)
