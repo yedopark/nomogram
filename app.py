@@ -49,7 +49,9 @@ with col2:
     # 중앙의 제목
     st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
     st.write("This application calculates and visualizes data based on input pressure and volume.")
-    
+    st.write("Reference: Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram
+by Sergii Kashkarov, Zhiyong Li, and Vladimir Molkov.")
+   
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
 overpressure_1_file_path = r'overpressure_1.xlsx'
 overpressure_2_file_path = r'overpressure_2.xlsx'
@@ -142,8 +144,8 @@ def calculate_impulse(df, volume, e_data_value):
         return np.nan
 
 # 사용자에게 압력과 부피 입력 받기
-pressure_input = st.number_input("압력을 입력하세요:", min_value=0.0, step=1.0)
-volume_input = st.number_input("부피를 입력하세요:", min_value=0.0, step=1.0)
+pressure_input = st.number_input("압력을 입력하세요(MPa):", min_value=0.0, step=1.0)
+volume_input = st.number_input("부피를 입력하세요(L):", min_value=0.0, step=1.0)
 
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
@@ -304,7 +306,6 @@ st.markdown(
     """
     <p style="text-align: center; color: gray; font-size: 12px;">
     © 2024 Energy Safety Laboratory, Pukyong National University. All rights reserved.<br>
-    Developed by: Ye Do Park, Chang Bo Oh
     </p>
     """, unsafe_allow_html=True
 )
