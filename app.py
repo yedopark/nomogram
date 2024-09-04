@@ -208,6 +208,15 @@ if st.button("계산 시작"):
     progress_bar.progress(90)
     status_text.text("Finalizing data...")
 
+    st.write(f"A_data 길이: {len(A_data)}")
+    st.write(f"B_data 길이: {len(B_data_interpolated)}")
+    st.write(f"Overpressure 길이: {len(overpressure_values)}")
+    st.write(f"C_data 길이: {len(C_data)}")
+    st.write(f"D_data 길이: {len(D_data)}")
+    st.write(f"E_data 길이: {len(E_data)}")
+    st.write(f"Impulse_data 길이: {len(Impulse_data)}")
+
+
     # 첫 번째 시트에 저장할 데이터프레임 생성
     df_first_sheet = pd.DataFrame({
         'Distance (m)': df_first_sheet_overpressure.index[:len(A_data)],
