@@ -217,14 +217,22 @@ if st.button("계산 시작"):
         'Overpressure (kPa)': overpressure_values
     })
 
+    # 배열들의 길이를 동일하게 맞춤 (가장 짧은 길이에 맞추기)
+    min_length_impulse = min(len(C_data), len(D_data), len(E_data), len(Impulse_data))
+
+    C_data = C_data[:min_length_impulse]
+    D_data = D_data[:min_length_impulse]
+    E_data = E_data[:min_length_impulse]
+    Impulse_data = Impulse_data[:min_length_impulse]
+
     # 두 번째 시트에 저장할 데이터프레임 생성
     df_second_sheet = pd.DataFrame({
-        'Distance (m)': df_first_sheet_overpressure.index[:len(C_data)],  # 여기서 Distance는 동일하게 사용됨
+        'Distance (m)': df_first_sheet_overpressure.index[:min_length_impulse],  # 여기서 Distance는 동일하게 사용됨
         'C_data': C_data,
         'D_data': D_data,
         'E_data': E_data,
         'Impulse (kPa*s)': Impulse_data
-    })
+})
 
     # 엑셀 파일에 저장 (첫번째 시트와 두번째 시트에 각각 데이터 저장)
     output_file_path = 'output_pressure_volume_data_with_impulse.xlsx'
