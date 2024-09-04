@@ -67,8 +67,8 @@ status_text = st.empty()
 # A_data 계산 (overpressure_1.xlsx 파일의 첫 번째 행에서 압력 값을 찾아서 A_data 배열에 저장)
 def calculate_a_data(df, pressure):
     # 압력 값과 동일한 값을 헤더에서 찾음
-    if str(pressure) in df.columns:
-        return df[str(pressure)]  # 압력 값이 있으면 그 열을 반환
+    if int(pressure) in df.columns:
+        return df[int(pressure)]  # 압력 값이 있으면 그 열을 반환
     else:
         st.error(f"압력 {pressure}MPa를 찾을 수 없습니다.")
         return None
