@@ -232,7 +232,7 @@ if st.button("계산 시작"):
         'D_data': D_data,
         'E_data': E_data,
         'Impulse (kPa*s)': Impulse_data
-})
+    })
 
     # 엑셀 파일에 저장 (첫번째 시트와 두번째 시트에 각각 데이터 저장)
     output_file_path = 'output_pressure_volume_data_with_impulse.xlsx'
