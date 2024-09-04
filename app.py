@@ -224,10 +224,10 @@ if st.button("계산 시작"):
     st.write(f"A_data 길이: {len(A_data)}")
     st.write(f"B_data 길이: {len(B_data_interpolated)}")
     st.write(f"Overpressure 길이: {len(overpressure_values)}")
-    st.write(f"C_data 길이: {len(C_data)}")
-    st.write(f"D_data 길이: {len(D_data)}")
-    st.write(f"E_data 길이: {len(E_data)}")
-    st.write(f"Impulse 길이: {len(Impulse_data)}")
+    st.write(C_data)
+    st.write(D_data)
+    st.write(E_data)
+    st.write(Impulse_data)
 
     # 필요한 데이터만 포함된 최종 출력 파일 생성
     output_df_minimal = pd.DataFrame({
