@@ -142,8 +142,8 @@ def calculate_impulse(df, volume, e_data_value):
         return np.nan
 
 # 사용자에게 압력과 부피 입력 받기
-pressure_input = st.number_input("압력을 입력하세요 (MPa):", min_value=0.0, step=1.0)
-volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0.0, step=1.0)
+pressure_input = st.number_input("압력을 입력하세요:", min_value=0.0, step=1.0)
+volume_input = st.number_input("부피를 입력하세요:", min_value=0.0, step=1.0)
 
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
@@ -210,6 +210,7 @@ if st.button("계산 시작"):
 
     # 배열들의 길이를 동일하게 맞춤
     min_length = min(len(A_data), len(B_data_interpolated), len(overpressure_values), len(C_data), len(D_data), len(E_data), len(Impulse_data))
+
     A_data = A_data.iloc[:min_length]
     B_data_interpolated = B_data_interpolated.iloc[:min_length]
     overpressure_values = overpressure_values.iloc[:min_length]
@@ -218,7 +219,7 @@ if st.button("계산 시작"):
     E_data = E_data[:min_length]
     Impulse_data = Impulse_data[:min_length]
 
-    # 필요한 데이터만 포함된 최종 출력 파일 생성
+    # 최소 데이터프레임 생성 (거리, 과압, 임펄스)
     output_df_minimal = pd.DataFrame({
         'Distance (m)': df_first_sheet_overpressure.index[:min_length],
         'Overpressure (kPa)': overpressure_values,
@@ -228,7 +229,7 @@ if st.button("계산 시작"):
     output_file_minimal_path = 'output_minimal_pressure_volume_data_with_impulse.xlsx'
     output_df_minimal.to_excel(output_file_minimal_path, index=False)
 
-    # 전체 결과를 엑셀 파일로 저장
+    # 전체 데이터프레임 생성 (중간 데이터 포함)
     output_df = pd.DataFrame({
         'Distance (m)': df_first_sheet_overpressure.index[:min_length],
         'A_data': A_data,
@@ -242,6 +243,7 @@ if st.button("계산 시작"):
 
     output_file_path = 'output_pressure_volume_data_with_impulse.xlsx'
     output_df.to_excel(output_file_path, index=False)
+
 
     progress_bar.progress(100)
     status_text.text(f"Calculation complete. Results saved to {output_file_path} and {output_file_minimal_path}")
