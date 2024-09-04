@@ -64,15 +64,14 @@ impulse_4_file_path = r'impulse_4.xlsx'
 progress_bar = st.progress(0)
 status_text = st.empty()
 
-# A_data 계산
-def calculate_physical_quantity(df, pressure):
-    pressures = df.columns.astype(float)
-    if pressure in pressures:
-        return df[pressure]
+# A_data 계산 (overpressure_1.xlsx 파일의 첫 번째 행에서 압력 값을 찾아서 A_data 배열에 저장)
+def calculate_a_data(df, pressure):
+    # 압력 값과 동일한 값을 헤더에서 찾음
+    if str(pressure) in df.columns:
+        return df[str(pressure)]  # 압력 값이 있으면 그 열을 반환
     else:
-        interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
-        interpolated_values = interp_function(pressure)
-        return pd.Series(interpolated_values, index=df.index)
+        st.error(f"압력 {pressure}MPa를 찾을 수 없습니다.")
+        return None
  
 # Overpressure 계산    
 def calculate_overpressure(df, pressure, b_data_value):
@@ -160,9 +159,8 @@ if st.button("계산 시작"):
     progress_bar.progress(20)
     status_text.text("Calculating A_data...")
 
-    # A_data 계산
-    A_data = calculate_physical_quantity(df_first_sheet_overpressure, pressure_input)
-    A_data[A_data <= 0] = np.nan  # A_data에서 0 또는 음수 값을 NaN으로 변환
+    # A_data 계산 (압력에 해당하는 열을 A_data 배열에 저장)
+    A_data = calculate_a_data(df_first_sheet_overpressure, pressure_input)
     
     progress_bar.progress(40)
     status_text.text("Calculating B_data...")
