@@ -230,7 +230,6 @@ if st.button("계산 시작"):
     output_df_1 = pd.DataFrame({
         'Distance_1 (m)': pd.Series(df_first_sheet_overpressure.index[:min_length_1], index=index_1),
         'A_data': pd.Series(A_data[:min_length_1], index=index_1),
-        'B_data_interpolated': B_data_interpolated.dropna()[:min_length_1],  # B_data_interpolated 추가
         'Overpressure (kPa)': pd.Series(overpressure_values[:min_length_1], index=index_1),
     })
 
@@ -266,19 +265,13 @@ if st.button("계산 시작"):
     filtered_output_df_2 = output_df_2[(output_df_2['Impulse (kPa*s)'] > 0)]
 
     # 첫 번째 그래프: Overpressure (y축 로그 스케일)
-    axs[0].plot(filtered_output_df_1['Distance (m)'], filtered_output_df_1['Overpressure (kPa)'], marker='o', linestyle='-')
+    axs[0].plot(filtered_output_df_1['Distance_1 (m)'], filtered_output_df_1['Overpressure (kPa)'], marker='o', linestyle='-')
     axs[0].set_xscale('linear')
     axs[0].set_yscale('log')
 
-    # x축 범위 설정 (Distance의 마지막 데이터가 100보다 작을 경우 해당 범위로 설정)
-    if filtered_output_df_1['Distance (m)'].iloc[-1] < 100:
-        axs[0].set_xlim([filtered_output_df_1['Distance (m)'].iloc[0], filtered_output_df_1['Distance (m)'].iloc[-1]])
-    else:
-        axs[0].set_xlim([0, 100])
-
-    axs[0].set_xlabel('Distance (m)')
+    axs[0].set_xlabel('Distance_1 (m)')
     axs[0].set_ylabel('Overpressure (kPa)')
-    axs[0].set_title(f'{pressure_input}MPa, {volume_input}L ')
+    axs[0].set_title(f'{pressure_input}MPa, {volume_input}L')
 
     # 두 번째 그래프: Impulse (x축을 Distance_2로 설정)
     axs[1].plot(filtered_output_df_2['Distance_2 (m)'], filtered_output_df_2['Impulse (kPa*s)'], marker='o', linestyle='-')
