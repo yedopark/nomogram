@@ -154,7 +154,7 @@ pressure_input = st.number_input("압력을 입력하세요 (MPa):", min_value=0
 
 # 부동소수점 비교 시 허용 오차 범위를 설정
 tolerance = 0.001
-if any(abs(pressure_input - p) < tolerance for p in [20, 35, 70, 100]):
+if any(abs(pressure_input - p) < tolerance for p in [20.00, 35.00, 70.00, 100.00]):
     pressure_input += 0.1
     st.write(f"입력된 압력은 {pressure_input - 0.1} MPa이므로 {pressure_input} MPa로 간주합니다.")
 else:
