@@ -93,7 +93,7 @@ def calculate_overpressure(df, pressure, b_data_value):
 
 # C_data 계산 (Impulse의 첫 번째 시트에서 압력에 해당하는 값)
 def calculate_c_data(df, pressure):
-    #pressures = df.columns.astype(float)
+    pressures = df.columns.astype(float)
     #if pressure in pressures:
         #return df[pressure]
     #else:
