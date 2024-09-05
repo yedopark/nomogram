@@ -149,8 +149,11 @@ def calculate_impulse(df, volume, e_data_value):
 pressure_input = st.number_input("압력을 입력하세요 (MPa):", min_value=0.0, step=1.0)
 volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0.0, step=1.0)
 
-if int(pressure_input) in [20, 35, 70, 100]:
+# 부동소수점 비교 시 허용 오차 범위를 설정
+tolerance = 0.001
+if any(abs(pressure_input - p) < tolerance for p in [20, 35, 70, 100]):
     pressure_input += 0.1
+    st.write(f"입력된 압력은 {pressure_input - 0.1} MPa이므로 {pressure_input} MPa로 간주합니다.")
 
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
@@ -238,45 +241,16 @@ if st.button("계산 시작"):
     
     # 배열들의 길이를 동일하게 맞춤 (Overpressure 관련 데이터)
     min_length_overpressure = min(len(A_data), len(B_data_interpolated), len(overpressure_values))
-
-    if isinstance(A_data, pd.Series):
-        A_data = A_data.iloc[:min_length_overpressure]
-    else:
-        A_data = A_data[:min_length_overpressure]
-
-    if isinstance(B_data_interpolated, pd.Series):
-        B_data_interpolated = B_data_interpolated.iloc[:min_length_overpressure]
-    else:
-        B_data_interpolated = B_data_interpolated[:min_length_overpressure]
-
-    if isinstance(overpressure_values, pd.Series):
-        overpressure_values = overpressure_values.iloc[:min_length_overpressure]
-    else:
-        overpressure_values = overpressure_values[:min_length_overpressure]
+    A_data = A_data.iloc[:min_length_overpressure]
+    B_data_interpolated = B_data_interpolated.iloc[:min_length_overpressure]
+    overpressure_values = overpressure_values.iloc[:min_length_overpressure]
 
     # 배열들의 길이를 동일하게 맞춤 (Impulse 관련 데이터)
     min_length_impulse = min(len(C_data), len(D_data), len(E_data), len(Impulse_data))
-
-    if isinstance(C_data, pd.Series):
-        C_data = C_data.iloc[:min_length_impulse]
-    else:
-        C_data = C_data[:min_length_impulse]
-
-    if isinstance(D_data, pd.Series):
-        D_data = D_data.iloc[:min_length_impulse]
-    else:
-        D_data = D_data[:min_length_impulse]
-
-    if isinstance(E_data, pd.Series):
-        E_data = E_data.iloc[:min_length_impulse]
-    else:
-        E_data = E_data[:min_length_impulse]
-
-    if isinstance(Impulse_data, pd.Series):
-        Impulse_data = Impulse_data.iloc[:min_length_impulse]
-    else:
-        Impulse_data = Impulse_data[:min_length_impulse]
-
+    C_data = C_data[:min_length_impulse]
+    D_data = D_data[:min_length_impulse]
+    E_data = E_data[:min_length_impulse]
+    Impulse_data = Impulse_data[:min_length_impulse]
 
     # Overpressure 관련 데이터를 첫 번째 시트에 저장
     output_df_overpressure = pd.DataFrame({
