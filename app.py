@@ -229,91 +229,68 @@ if st.button("계산 시작"):
     st.write(f"Impulse_data 길이: {len(Impulse_data)}")
     st.write(f"Impulse_data: {Impulse_data}")
     
-    # 배열들의 길이를 동일하게 맞춤
-    min_length = min(len(A_data), len(B_data_interpolated), len(overpressure_values), len(C_data), len(D_data), len(E_data), len(Impulse_data))
-    A_data = A_data.iloc[:min_length]
-    B_data_interpolated = B_data_interpolated.iloc[:min_length]
-    overpressure_values = overpressure_values.iloc[:min_length]
-    C_data = C_data[:min_length]
-    D_data = D_data[:min_length]
-    E_data = E_data[:min_length]
-    Impulse_data = Impulse_data[:min_length]
+    # 배열들의 길이를 동일하게 맞춤 (Overpressure 관련 데이터)
+    min_length_overpressure = min(len(A_data), len(B_data_interpolated), len(overpressure_values))
+    A_data = A_data.iloc[:min_length_overpressure]
+    B_data_interpolated = B_data_interpolated.iloc[:min_length_overpressure]
+    overpressure_values = overpressure_values.iloc[:min_length_overpressure]
 
-    # 필요한 데이터만 포함된 최종 출력 파일 생성
-    output_df_minimal = pd.DataFrame({
-        'Distance (m)': df_first_sheet_overpressure.index[:min_length],
-        'Overpressure (kPa)': overpressure_values,
-        'Impulse (kPa*s)': Impulse_data
-    })
+    # 배열들의 길이를 동일하게 맞춤 (Impulse 관련 데이터)
+    min_length_impulse = min(len(C_data), len(D_data), len(E_data), len(Impulse_data))
+    C_data = C_data[:min_length_impulse]
+    D_data = D_data[:min_length_impulse]
+    E_data = E_data[:min_length_impulse]
+    Impulse_data = Impulse_data[:min_length_impulse]
 
-    output_file_minimal_path = 'output_minimal_pressure_volume_data_with_impulse.xlsx'
-    output_df_minimal.to_excel(output_file_minimal_path, index=False)
-
-    # 전체 결과를 엑셀 파일로 저장
-    output_df = pd.DataFrame({
-        'Distance (m)': df_first_sheet_overpressure.index[:min_length],
+    # Overpressure 관련 데이터를 첫 번째 시트에 저장
+    output_df_overpressure = pd.DataFrame({
+        'Distance (m)': df_first_sheet_overpressure.index[:min_length_overpressure],
         'A_data': A_data,
         'B_data': B_data_interpolated,
-        'Overpressure (kPa)': overpressure_values,
+        'Overpressure (kPa)': overpressure_values
+    })
+
+    # Impulse 관련 데이터를 두 번째 시트에 저장
+    output_df_impulse = pd.DataFrame({
+        'Distance (m)': df_first_sheet_overpressure.index[:min_length_impulse],
         'C_data': C_data,
         'D_data': D_data,
         'E_data': E_data,
         'Impulse (kPa*s)': Impulse_data
     })
 
-    output_file_path = 'output_pressure_volume_data_with_impulse.xlsx'
-    output_df.to_excel(output_file_path, index=False)
+    # 엑셀 파일로 저장
+    output_file_path = 'output_pressure_volume_data_with_separate_sheets.xlsx'
+    with pd.ExcelWriter(output_file_path) as writer:
+        output_df_overpressure.to_excel(writer, sheet_name='Overpressure Data', index=False)
+        output_df_impulse.to_excel(writer, sheet_name='Impulse Data', index=False)
 
-    progress_bar.progress(100)
-    status_text.text(f"Calculation complete. Results saved to {output_file_path} and {output_file_minimal_path}")
-
-    # 엑셀 파일을 다운로드할 수 있는 버튼 추가
-    with open(output_file_minimal_path, 'rb') as f:
-        st.download_button('Download Minimal Output Excel File', f, file_name=output_file_minimal_path)
-
-    with open(output_file_path, 'rb') as f:
-        st.download_button('Download Full Output Excel File', f, file_name=output_file_path)
+    # NaN이 포함된 순서쌍 제거 후 그래프 그리기
+    filtered_output_df_overpressure = output_df_overpressure.dropna()
+    filtered_output_df_impulse = output_df_impulse.dropna()
 
     # 그래프 생성
-    st.write("### Graphs")
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
-    # y축 값이 0이 아닌 데이터만 필터링
-    filtered_output_df = output_df[(output_df['Overpressure (kPa)'] > 0) & (output_df['Impulse (kPa*s)'] > 0)]
-
     # 첫 번째 그래프: Overpressure (y축 로그 스케일)
-    axs[0].plot(filtered_output_df['Distance (m)'], filtered_output_df['Overpressure (kPa)'], marker='o', linestyle='-')
+    axs[0].plot(filtered_output_df_overpressure['Distance (m)'], filtered_output_df_overpressure['Overpressure (kPa)'], marker='o', linestyle='-')
     axs[0].set_xscale('linear')
     axs[0].set_yscale('log')
-
-    # x축 범위 설정 (Distance의 마지막 데이터가 100보다 작을 경우 해당 범위로 설정)
-    if filtered_output_df['Distance (m)'].iloc[-1] < 100:
-        axs[0].set_xlim([filtered_output_df['Distance (m)'].iloc[0], filtered_output_df['Distance (m)'].iloc[-1]])
-    else:
-        axs[0].set_xlim([0, 100])
-
     axs[0].set_xlabel('Distance (m)')
     axs[0].set_ylabel('Overpressure (kPa)')
     axs[0].set_title(f'{pressure_input}MPa, {volume_input}L ')
 
     # 두 번째 그래프: Impulse
-    axs[1].plot(filtered_output_df['Distance (m)'], filtered_output_df['Impulse (kPa*s)'], marker='o', linestyle='-')
+    axs[1].plot(filtered_output_df_impulse['Distance (m)'], filtered_output_df_impulse['Impulse (kPa*s)'], marker='o', linestyle='-')
     axs[1].set_xscale('linear')
     axs[1].set_yscale('linear')
-
-    # x축 범위 설정 (Distance의 마지막 데이터가 100보다 작을 경우 해당 범위로 설정)
-    if filtered_output_df['Distance (m)'].iloc[-1] < 100:
-        axs[1].set_xlim([filtered_output_df['Distance (m)'].iloc[0], filtered_output_df['Distance (m)'].iloc[-1]])
-    else:
-        axs[1].set_xlim([0, 100])
-
     axs[1].set_xlabel('Distance (m)')
     axs[1].set_ylabel('Impulse (kPa*s)')
     axs[1].set_title('Impulse vs Distance')
 
     st.pyplot(fig)
 
-    # 그래프 이미지를 다운로드할 수 있는 버튼 추가
+    # 그래프 이미지 다운로드 버튼 추가
     buffer = BytesIO()
     fig.savefig(buffer, format='png')
     buffer.seek(0)
