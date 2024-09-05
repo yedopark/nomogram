@@ -71,20 +71,20 @@ status_text = st.empty()
 # A_data 계산
 def calculate_physical_quantity(df, pressure):
     pressures = df.columns.astype(float)
-    #if pressure in pressures:
-        #return df[pressure]
-    #else:
-    interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
-    interpolated_values = interp_function(pressure)
-    return pd.Series(interpolated_values, index=df.index)
+    if pressure in pressures:
+        return df[pressure]
+    else:
+        interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
+        interpolated_values = interp_function(pressure)
+        return pd.Series(interpolated_values, index=df.index)
  
 # Overpressure 계산    
 def calculate_overpressure(df, pressure, b_data_value):
-    #if pressure not in df.columns:
-        #interp_function_pressure = interp1d(df.columns.astype(float), df.values, axis=1, fill_value="extrapolate")
-        #interpolated_values = interp_function_pressure(pressure)
-    #else:
-    interpolated_values = df[pressure].values
+    if pressure not in df.columns:
+        interp_function_pressure = interp1d(df.columns.astype(float), df.values, axis=1, fill_value="extrapolate")
+        interpolated_values = interp_function_pressure(pressure)
+    else:
+        interpolated_values = df[pressure].values
     
     interp_function_b_data = interp1d(df.index, interpolated_values, fill_value="extrapolate", bounds_error=False)
     overpressure = interp_function_b_data(b_data_value)
@@ -94,11 +94,11 @@ def calculate_overpressure(df, pressure, b_data_value):
 # C_data 계산 (Impulse의 첫 번째 시트에서 압력에 해당하는 값)
 def calculate_c_data(df, pressure):
     pressures = df.columns.astype(float)
-    #if pressure in pressures:
-        #return df[pressure]
-    #else:
-    interp_function = interp1d(pressure, df.values, axis=1, fill_value="extrapolate")
-    return interp_function(pressure)
+    if pressure in pressures:
+        return df[pressure]
+    else:
+        interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
+        return interp_function(pressure)
     
 # D_data 계산 (Impulse의 두 번째 시트에서 부피와 C_data에 해당하는 값)
 def calculate_d_data(df, volume, c_data_value):
@@ -149,8 +149,8 @@ def calculate_impulse(df, volume, e_data_value):
 pressure_input = st.number_input("압력을 입력하세요 (MPa):", min_value=0.0, step=1.0)
 volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0.0, step=1.0)
 
-#if pressure_input in [20, 35, 70, 100]:
-    #pressure_input += 0.01
+if pressure_input in [20, 35, 70, 100]:
+    pressure_input += 0.1
 
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
