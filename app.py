@@ -53,19 +53,7 @@ with col1:
 
 with col2:
     # 중앙의 제목
-    st.title("MOPIC")
-    
-    # Using st.markdown with HTML to format only specific letters in red
-    st.markdown("""
-    <h3 style='font-size:20px;'>
-    <span style='color:red;'>M</span>aximum 
-    <span style='color:red;'>O</span>ver 
-    <span style='color:red;'>P</span>ressure and
-    <span style='color:red;'>I</span>mpulse 
-    <span style='color:red;'>C</span>alculation Program for High-Pressure Hydrogen Tanks
-    </h3>
-    """, unsafe_allow_html=True)
-    
+    st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
     st.write("This application calculates and visualizes data based on input pressure and volume.")
 
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
@@ -158,6 +146,14 @@ def calculate_impulse(df, volume, e_data_value):
     except Exception as e:
         st.error(f"Error in calculating impulse: {e}")
         return np.nan
+
+# Streamlit Session State to store previous results
+if 'calculation_done' not in st.session_state:
+    st.session_state.calculation_done = False
+if 'previous_results' not in st.session_state:
+    st.session_state.previous_results = []
+if 'previous_inputs' not in st.session_state:
+    st.session_state.previous_inputs = []
 
 # 사용자에게 압력과 부피 입력 받기
 pressure_input = st.number_input("압력을 입력하세요 (MPa):", min_value=0.0, step=1.0)
@@ -324,6 +320,59 @@ if st.button("계산 시작"):
     # 진행 상황을 100%로 업데이트
     progress_bar.progress(100)
     status_text.text("Calculation completed.")
+    
+# Mock calculation results
+    output_file_path = 'output_data.xlsx'
+    result_graph_buffer = BytesIO()  # Mock buffer for the graph image
+        
+        # 임시 결과 저장
+    st.session_state.previous_results.append({
+        'pressure': pressure_input,
+        'volume': volume_input,
+        'output_file_path': output_file_path,
+        'graph': result_graph_buffer
+    })
+    st.session_state.previous_inputs = [pressure_input, volume_input]
+        
+    # 계산 완료 플래그 설정
+    st.session_state.calculation_done = True
+else:
+    # "계산 재시작" 버튼과 이전 결과 표시
+    st.write("계산이 완료되었습니다.")
+    if st.button("계산 재시작"):
+        st.session_state.calculation_done = False
+
+    # 이전에 입력했던 압력, 부피 및 결과 보여주기
+    if st.session_state.previous_inputs:
+        st.write(f"이전 입력 값: 압력 = {st.session_state.previous_inputs[0]} MPa, 부피 = {st.session_state.previous_inputs[1]} L")
+    
+    # 이전에 저장된 결과 엑셀 파일과 그래프 보기
+    for idx, result in enumerate(st.session_state.previous_results, start=1):
+        st.write(f"### 이전 결과 {idx}")
+        st.write(f"압력: {result['pressure']} MPa, 부피: {result['volume']} L")
+        
+        # 엑셀 파일 다운로드 버튼
+        st.download_button(
+            label=f"이전 결과 {idx} 엑셀 파일 다운로드",
+            data=result['output_file_path'],
+            file_name=f"previous_result_{idx}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        
+        # 그래프 이미지 다운로드 버튼
+        st.download_button(
+            label=f"이전 결과 {idx} 그래프 다운로드",
+            data=result['graph'],
+            file_name=f"previous_graph_{idx}.png",
+            mime='image/png'
+        )    
+    
+    
+    
+    
+    
+    
+    
 
 # 저작권 표시 추가
 st.markdown("---")  # 구분선을 추가하여 시각적으로 구분
