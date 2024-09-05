@@ -318,6 +318,10 @@ if st.button("계산 시작"):
     buffer.seek(0)
     st.download_button('Download Graph Image', buffer, file_name='graph.png', mime='image/png')
 
+    # 진행 상황을 100%로 업데이트
+    progress_bar.progress(100)
+    status_text.text("Calculation completed.")
+
 # 저작권 표시 추가
 st.markdown("---")  # 구분선을 추가하여 시각적으로 구분
 st.markdown(
