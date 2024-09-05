@@ -1,39 +1,13 @@
-"""
-Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse - version 1.0
-
-Description
-: This Python code calculates overpressure and impulse resulting from the explosion of a high-pressure hydrogen tank.
-It receives pressure and volume inputs from the user and uses nomogram data to compute the overpressure and impulse.
-The nomogram data is referenced from the paper "Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram"
-by Sergii Kashkarov, Zhiyong Li, and Vladimir Molkov. 
-Both the code and the nomogram data are uploaded on GitHub and can be accessed by anyone through the link "https://nomogram-mntketbfejckna9g4hqe52.streamlit.app/".
-
-Usage Guide:
-1. Input Values:
-   - Pressure (MPa): Enter the pressure value at which the tank explodes.
-   - Volume (Liters): Enter the volume of the hydrogen tank.
-   These inputs help in calculating the overpressure and impulse due to the explosion based on scientific models and empirical data.
-2. Output:
-   - The program outputs graphs showing the overpressure and impulse as a function of distance from the explosion site.
-   - Detailed data tables and downloadable Excel files containing the calculated values are also provided for further analysis.
-   
-Developer : Yedo Park, Energy Safety Lab, Pukyong National University
-Created on : 2024. 8. 20
-Last updated : 2024. 8. 20
-
-"""
-
 import pandas as pd
 from scipy.interpolate import interp1d
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 from io import BytesIO
-import requests
 from PIL import Image
 
-# 이미지 파일 경로 설정 (엑셀 파일과 동일한 경로)
-image_directory = r'.'  # 현재 디렉토리
+# 이미지 파일 경로 설정
+image_directory = r'.'
 university_logo_path = f"{image_directory}/university_logo.png"
 lab_logo_path = f"{image_directory}/lab_logo.png"
 
@@ -73,18 +47,18 @@ def calculate_physical_quantity(df, pressure):
         interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
         interpolated_values = interp_function(pressure)
         return pd.Series(interpolated_values, index=df.index)
- 
-# Overpressure 계산    
+
+# Overpressure 계산
 def calculate_overpressure(df, pressure, b_data_value):
     if pressure not in df.columns:
         interp_function_pressure = interp1d(df.columns.astype(float), df.values, axis=1, fill_value="extrapolate")
         interpolated_values = interp_function_pressure(pressure)
     else:
         interpolated_values = df[pressure].values
-    
+
     interp_function_b_data = interp1d(df.index, interpolated_values, fill_value="extrapolate", bounds_error=False)
     overpressure = interp_function_b_data(b_data_value)
-    
+
     return overpressure
 
 # C_data 계산 (Impulse의 첫 번째 시트에서 압력에 해당하는 값)
@@ -95,7 +69,7 @@ def calculate_c_data(df, pressure):
     else:
         interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
         return interp_function(pressure)
-    
+
 # D_data 계산 (Impulse의 두 번째 시트에서 부피와 C_data에 해당하는 값)
 def calculate_d_data(df, volume, c_data_value):
     volumes = df.columns.astype(float)
@@ -104,7 +78,7 @@ def calculate_d_data(df, volume, c_data_value):
     else:
         interp_function = interp1d(volumes, df.values, axis=1, fill_value="extrapolate")
         column_data = pd.Series(interp_function(volume), index=df.index)
-    
+
     interp_function_d = interp1d(df.index, column_data, fill_value="extrapolate", bounds_error=False)
     return interp_function_d(c_data_value)
 
@@ -116,7 +90,7 @@ def calculate_e_data(df, volume, d_data_value):
     else:
         interp_function = interp1d(volumes, df.values, axis=1, fill_value="extrapolate")
         column_data = pd.Series(interp_function(volume), index=df.index)
-    
+
     interp_function_e = interp1d(df.index, column_data, fill_value="extrapolate", bounds_error=False)
     return interp_function_e(d_data_value)
 
@@ -145,163 +119,171 @@ def calculate_impulse(df, volume, e_data_value):
 pressure_input = st.number_input("압력을 입력하세요:", min_value=0.0, step=1.0)
 volume_input = st.number_input("부피를 입력하세요:", min_value=0.0, step=1.0)
 
-if st.button("계산 시작"):
-    # 엑셀 파일 읽기
-    status_text.text("Loading Excel files...")
-    df_first_sheet_overpressure = pd.read_excel(overpressure_1_file_path, index_col=0)
-    df_second_sheet_overpressure = pd.read_excel(overpressure_2_file_path, index_col=0)
-    df_third_sheet_overpressure = pd.read_excel(overpressure_3_file_path, index_col=0)
-    
-    df_first_sheet_impulse = pd.read_excel(impulse_1_file_path, index_col=0)
-    df_second_sheet_impulse = pd.read_excel(impulse_2_file_path, index_col=0)
-    df_third_sheet_impulse = pd.read_excel(impulse_3_file_path, index_col=0)
-    df_fourth_sheet_impulse = pd.read_excel(impulse_4_file_path, index_col=0)
-    
-    progress_bar.progress(20)
-    status_text.text("Calculating A_data...")
+# 상태를 추적하기 위한 변수 설정
+calculation_done = st.session_state.get('calculation_done', False)
 
-    # A_data 계산
-    A_data = calculate_physical_quantity(df_first_sheet_overpressure, pressure_input)
-    A_data[A_data <= 0] = np.nan  # A_data에서 0 또는 음수 값을 NaN으로 변환
-    
-    progress_bar.progress(40)
-    status_text.text("Calculating B_data...")
+if not calculation_done:
+    if st.button("계산 시작"):
+        # 엑셀 파일 읽기
+        status_text.text("Loading Excel files...")
+        df_first_sheet_overpressure = pd.read_excel(overpressure_1_file_path, index_col=0)
+        df_second_sheet_overpressure = pd.read_excel(overpressure_2_file_path, index_col=0)
+        df_third_sheet_overpressure = pd.read_excel(overpressure_3_file_path, index_col=0)
 
-    # B_data 계산
-    if volume_input in df_second_sheet_overpressure.columns:
-        B_data = df_second_sheet_overpressure[volume_input]
-    else:
-        interp_function_B = interp1d(df_second_sheet_overpressure.columns.astype(float), df_second_sheet_overpressure.values, axis=1, fill_value="extrapolate")
-        B_data = pd.Series(interp_function_B(volume_input), index=df_second_sheet_overpressure.index)
+        df_first_sheet_impulse = pd.read_excel(impulse_1_file_path, index_col=0)
+        df_second_sheet_impulse = pd.read_excel(impulse_2_file_path, index_col=0)
+        df_third_sheet_impulse = pd.read_excel(impulse_3_file_path, index_col=0)
+        df_fourth_sheet_impulse = pd.read_excel(impulse_4_file_path, index_col=0)
 
-    interp_function_A = interp1d(df_second_sheet_overpressure.index, B_data, fill_value="extrapolate", bounds_error=False)
-    B_data_interpolated = pd.Series(interp_function_A(A_data), index=A_data.index)
-    B_data_interpolated[B_data_interpolated <= 0] = np.nan  # B_data에서 0 또는 음수 값을 NaN으로 변환
+        progress_bar.progress(20)
+        status_text.text("Calculating A_data...")
 
-    progress_bar.progress(60)
-    status_text.text("Calculating Overpressure...")
+        # A_data 계산
+        A_data = calculate_physical_quantity(df_first_sheet_overpressure, pressure_input)
+        A_data[A_data <= 0] = np.nan  # A_data에서 0 또는 음수 값을 NaN으로 변환
 
-    # 세 번째 시트에서 overpressure 계산
-    overpressure_values = B_data_interpolated.apply(lambda x: calculate_overpressure(df_third_sheet_overpressure, pressure_input, x))
+        progress_bar.progress(40)
+        status_text.text("Calculating B_data...")
 
-    progress_bar.progress(70)
-    status_text.text("Calculating C_data...")
+        # B_data 계산
+        if volume_input in df_second_sheet_overpressure.columns:
+            B_data = df_second_sheet_overpressure[volume_input]
+        else:
+            interp_function_B = interp1d(df_second_sheet_overpressure.columns.astype(float), df_second_sheet_overpressure.values, axis=1, fill_value="extrapolate")
+            B_data = pd.Series(interp_function_B(volume_input), index=df_second_sheet_overpressure.index)
 
-    # C_data 계산
-    C_data = calculate_c_data(df_first_sheet_impulse, pressure_input)
-    C_data[C_data <= 0] = np.nan  # C_data에서 0 또는 음수 값을 NaN으로 변환
+        interp_function_A = interp1d(df_second_sheet_overpressure.index, B_data, fill_value="extrapolate", bounds_error=False)
+        B_data_interpolated = pd.Series(interp_function_A(A_data), index=A_data.index)
+        B_data_interpolated[B_data_interpolated <= 0] = np.nan  # B_data에서 0 또는 음수 값을 NaN으로 변환
 
-    progress_bar.progress(80)
-    status_text.text("Calculating D_data, E_data, and Impulse...")
+        progress_bar.progress(60)
+        status_text.text("Calculating Overpressure...")
 
-    # D_data 계산
-    D_data = [calculate_d_data(df_second_sheet_impulse, volume_input, c) for c in C_data]
+        # 세 번째 시트에서 overpressure 계산
+        overpressure_values = B_data_interpolated.apply(lambda x: calculate_overpressure(df_third_sheet_overpressure, pressure_input, x))
 
-    # E_data 계산
-    E_data = [calculate_e_data(df_third_sheet_impulse, volume_input, d) for d in D_data]
+        progress_bar.progress(70)
+        status_text.text("Calculating C_data...")
 
-    # Impulse 계산
-    Impulse_data = []
-    for e in E_data:
-        Impulse_data.append(calculate_impulse(df_fourth_sheet_impulse, volume_input, e))
+        # C_data 계산
+        C_data = calculate_c_data(df_first_sheet_impulse, pressure_input)
+        C_data[C_data <= 0] = np.nan  # C_data에서 0 또는 음수 값을 NaN으로 변환
 
-    progress_bar.progress(90)
-    status_text.text("Finalizing data...")
-    
-    st.write(f"A_data 길이: {len(A_data)}")
-    st.write(f"A_data : {A_data}")
-    
-    st.write(f"B_data 길이: {len(B_data_interpolated)}")
-    st.write(f"B_data_interpolated : {B_data_interpolated}")
-    
-    st.write(f"Overpressure 길이: {len(overpressure_values)}")
-    st.write(f"overpressure_values : {overpressure_values}")
-    
-    st.write(f"C_data 길이: {len(C_data)}")
-    st.write(f"C_data : {C_data}")
-    
-    st.write(f"D_data 길이: {len(D_data)}")
-    st.write(f"D_data : {D_data}")
-    
-    st.write(f"E_data 길이: {len(E_data)}")
-    st.write(f"E_data : {E_data}")
-    
-    st.write(f"Impulse_data 길이: {len(Impulse_data)}")
-    st.write(f"Impulse_data: {Impulse_data}")
-    
-    # 배열들의 길이를 동일하게 맞춤 (Overpressure 관련 데이터)
-    min_length_overpressure = min(len(A_data), len(B_data_interpolated), len(overpressure_values))
-    A_data = A_data.iloc[:min_length_overpressure]
-    B_data_interpolated = B_data_interpolated.iloc[:min_length_overpressure]
-    overpressure_values = overpressure_values.iloc[:min_length_overpressure]
+        progress_bar.progress(80)
+        status_text.text("Calculating D_data, E_data, and Impulse...")
 
-    # 배열들의 길이를 동일하게 맞춤 (Impulse 관련 데이터)
-    min_length_impulse = min(len(C_data), len(D_data), len(E_data), len(Impulse_data))
-    C_data = C_data[:min_length_impulse]
-    D_data = D_data[:min_length_impulse]
-    E_data = E_data[:min_length_impulse]
-    Impulse_data = Impulse_data[:min_length_impulse]
+        # D_data 계산
+        D_data = [calculate_d_data(df_second_sheet_impulse, volume_input, c) for c in C_data]
 
-    # Overpressure 관련 데이터를 첫 번째 시트에 저장
-    output_df_overpressure = pd.DataFrame({
-        'Distance (m)': df_first_sheet_overpressure.index[:min_length_overpressure],
-        'A_data': A_data,
-        'B_data': B_data_interpolated,
-        'Overpressure (kPa)': overpressure_values
-    })
+        # E_data 계산
+        E_data = [calculate_e_data(df_third_sheet_impulse, volume_input, d) for d in D_data]
 
-    # Distance_2 (m) 배열 추가 (impulse_1.xlsx의 첫 번째 열 데이터를 저장)
-    df_first_sheet_impulse = pd.read_excel(impulse_1_file_path, index_col=0)
-    Distance_2 = df_first_sheet_impulse.index  # 첫 번째 열 데이터
+        # Impulse 계산
+        Impulse_data = []
+        for e in E_data:
+            Impulse_data.append(calculate_impulse(df_fourth_sheet_impulse, volume_input, e))
 
-    # Impulse 관련 데이터를 두 번째 시트에 저장 (Distance_2 사용)
-    output_df_impulse = pd.DataFrame({
-        'Distance_2 (m)': Distance_2[:min_length_impulse],
-        'C_data': C_data,
-        'D_data': D_data,
-        'E_data': E_data,
-        'Impulse (kPa*s)': Impulse_data
-    })
+        progress_bar.progress(90)
+        status_text.text("Finalizing data...")
 
-    # 엑셀 파일로 저장
-    output_file_path = 'output_pressure_volume_data_with_separate_sheets.xlsx'
-    with pd.ExcelWriter(output_file_path) as writer:
-        output_df_overpressure.to_excel(writer, sheet_name='Overpressure Data', index=False)
-        output_df_impulse.to_excel(writer, sheet_name='Impulse Data', index=False)
+        st.write(f"A_data 길이: {len(A_data)}")
+        st.write(f"A_data : {A_data}")
 
-    # NaN이 포함된 순서쌍 제거 후 0 이하 값도 제외한 그래프 그리기
-    filtered_output_df_overpressure = output_df_overpressure.dropna()
-    filtered_output_df_overpressure = filtered_output_df_overpressure[filtered_output_df_overpressure['Overpressure (kPa)'] > 0]
+        st.write(f"B_data 길이: {len(B_data_interpolated)}")
+        st.write(f"B_data_interpolated : {B_data_interpolated}")
 
-    filtered_output_df_impulse = output_df_impulse.dropna()
-    filtered_output_df_impulse = filtered_output_df_impulse[filtered_output_df_impulse['Impulse (kPa*s)'] > 0]
+        st.write(f"Overpressure 길이: {len(overpressure_values)}")
+        st.write(f"overpressure_values : {overpressure_values}")
 
-    # 그래프 생성
-    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+        st.write(f"C_data 길이: {len(C_data)}")
+        st.write(f"C_data : {C_data}")
 
-    # 첫 번째 그래프: Overpressure (y축 로그 스케일)
-    axs[0].plot(filtered_output_df_overpressure['Distance (m)'], filtered_output_df_overpressure['Overpressure (kPa)'], marker='o', linestyle='-')
-    axs[0].set_xscale('linear')
-    axs[0].set_yscale('log')
-    axs[0].set_xlabel('Distance (m)')
-    axs[0].set_ylabel('Overpressure (kPa)')
-    axs[0].set_title(f'{pressure_input}MPa, {volume_input}L ')
+        st.write(f"D_data 길이: {len(D_data)}")
+        st.write(f"D_data : {D_data}")
 
-    # 두 번째 그래프: Impulse (x축을 Distance_2 (m)로 설정)
-    axs[1].plot(filtered_output_df_impulse['Distance_2 (m)'], filtered_output_df_impulse['Impulse (kPa*s)'], marker='o', linestyle='-')
-    axs[1].set_xscale('linear')
-    axs[1].set_yscale('log')
-    axs[1].set_xlabel('Distance_2 (m)')
-    axs[1].set_ylabel('Impulse (kPa*s)')
-    axs[1].set_title('Impulse vs Distance_2 (m)')
+        st.write(f"E_data 길이: {len(E_data)}")
+        st.write(f"E_data : {E_data}")
 
-    st.pyplot(fig)
+        st.write(f"Impulse_data 길이: {len(Impulse_data)}")
+        st.write(f"Impulse_data: {Impulse_data}")
 
-    # 그래프 이미지 다운로드 버튼 추가
-    buffer = BytesIO()
-    fig.savefig(buffer, format='png')
-    buffer.seek(0)
-    st.download_button('Download Graph Image', buffer, file_name='graph.png', mime='image/png')
+        # 배열들의 길이를 동일하게 맞춤 (Overpressure 관련 데이터)
+        min_length_overpressure = min(len(A_data), len(B_data_interpolated), len(overpressure_values))
+        A_data = A_data.iloc[:min_length_overpressure]
+        B_data_interpolated = B_data_interpolated.iloc[:min_length_overpressure]
+        overpressure_values = overpressure_values.iloc[:min_length_overpressure]
+
+        # 배열들의 길이를 동일하게 맞춤 (Impulse 관련 데이터)
+        min_length_impulse = min(len(C_data), len(D_data), len(E_data), len(Impulse_data))
+        C_data = C_data[:min_length_impulse]
+        D_data = D_data[:min_length_impulse]
+        E_data = E_data[:min_length_impulse]
+        Impulse_data = Impulse_data[:min_length_impulse]
+
+        # Overpressure 관련 데이터를 첫 번째 시트에 저장
+        output_df_overpressure = pd.DataFrame({
+            'Distance (m)': df_first_sheet_overpressure.index[:min_length_overpressure],
+            'Overpressure (kPa)': overpressure_values
+        })
+
+        # Distance_2 (m) 배열 추가 (impulse_1.xlsx의 첫 번째 열 데이터를 저장)
+        df_first_sheet_impulse = pd.read_excel(impulse_1_file_path, index_col=0)
+        Distance_2 = df_first_sheet_impulse.index  # 첫 번째 열 데이터
+
+        # Impulse 관련 데이터를 두 번째 시트에 저장 (Distance_2 사용)
+        output_df_impulse = pd.DataFrame({
+            'Distance_2 (m)': Distance_2[:min_length_impulse],
+            'Impulse (kPa*s)': Impulse_data
+        })
+
+        # 엑셀 파일로 저장
+        output_file_path = 'output_pressure_volume_data_with_separate_sheets.xlsx'
+        with pd.ExcelWriter(output_file_path) as writer:
+            output_df_overpressure.to_excel(writer, sheet_name='Overpressure Data', index=False)
+            output_df_impulse.to_excel(writer, sheet_name='Impulse Data', index=False)
+
+        # NaN이 포함된 순서쌍 제거 후 0 이하 값도 제외한 그래프 그리기
+        filtered_output_df_overpressure = output_df_overpressure.dropna()
+        filtered_output_df_overpressure = filtered_output_df_overpressure[filtered_output_df_overpressure['Overpressure (kPa)'] > 0]
+
+        filtered_output_df_impulse = output_df_impulse.dropna()
+        filtered_output_df_impulse = filtered_output_df_impulse[filtered_output_df_impulse['Impulse (kPa*s)'] > 0]
+
+        # 그래프 생성
+        fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+
+        # 첫 번째 그래프: Overpressure (y축 로그 스케일)
+        axs[0].plot(filtered_output_df_overpressure['Distance (m)'], filtered_output_df_overpressure['Overpressure (kPa)'], marker='o', linestyle='-')
+        axs[0].set_xscale('linear')
+        axs[0].set_yscale('log')
+        axs[0].set_xlabel('Distance (m)')
+        axs[0].set_ylabel('Overpressure (kPa)')
+        axs[0].set_title(f'{pressure_input}MPa, {volume_input}L ')
+
+        # 두 번째 그래프: Impulse (x축을 Distance_2 (m)로 설정)
+        axs[1].plot(filtered_output_df_impulse['Distance_2 (m)'], filtered_output_df_impulse['Impulse (kPa*s)'], marker='o', linestyle='-')
+        axs[1].set_xscale('linear')
+        axs[1].set_yscale('log')
+        axs[1].set_xlabel('Distance_2 (m)')
+        axs[1].set_ylabel('Impulse (kPa*s)')
+        axs[1].set_title('Impulse vs Distance_2 (m)')
+
+        st.pyplot(fig)
+
+        # 그래프 이미지 다운로드 버튼 추가
+        buffer = BytesIO()
+        fig.savefig(buffer, format='png')
+        buffer.seek(0)
+        st.download_button('Download Graph Image', buffer, file_name='graph.png', mime='image/png')
+
+        # 계산 완료 상태로 설정
+        st.session_state.calculation_done = True
+
+else:
+    if st.button("계산 재시작"):
+        # 세션 상태를 리셋하고 계산을 다시 시작할 수 있도록 설정
+        st.session_state.calculation_done = False
+        st.experimental_rerun()
 
 # 저작권 표시 추가
 st.markdown("---")  # 구분선을 추가하여 시각적으로 구분
