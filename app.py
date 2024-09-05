@@ -89,18 +89,12 @@ def calculate_overpressure(df, pressure, b_data_value):
 
 # C_data 계산 (Impulse의 첫 번째 시트에서 압력에 해당하는 값)
 def calculate_c_data(df, pressure):
-    try:
-        # 컬럼이 숫자로 변환 가능한지 확인 후 변환
-        pressures = pd.to_numeric(df.columns, errors='coerce')
-        if pressure in pressures:
-            return df[pressure]
-        else:
-            interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
-            return interp_function(pressure)
-    except Exception as e:
-        st.error(f"Error in calculating C_data: {e}")
-        return None
-
+    pressures = df.columns.astype(float)
+    if pressure in pressures:
+        return df[pressure]
+    else:
+        interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
+        return interp_function(pressure)
     
 # D_data 계산 (Impulse의 두 번째 시트에서 부피와 C_data에 해당하는 값)
 def calculate_d_data(df, volume, c_data_value):
@@ -278,6 +272,12 @@ if st.button("계산 시작"):
     axs[0].plot(filtered_output_df['Distance (m)'], filtered_output_df['Overpressure (kPa)'], marker='o', linestyle='-')
     axs[0].set_xscale('linear')
     axs[0].set_yscale('log')
+
+    # x축 범위 설정 (Distance의 마지막 데이터가 100보다 작을 경우 해당 범위로 설정)
+    if filtered_output_df['Distance (m)'].iloc[-1] < 100:
+        axs[0].set_xlim([filtered_output_df['Distance (m)'].iloc[0], filtered_output_df['Distance (m)'].iloc[-1]])
+    else:
+        axs[0].set_xlim([0, 100])
 
     axs[0].set_xlabel('Distance (m)')
     axs[0].set_ylabel('Overpressure (kPa)')
