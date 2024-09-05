@@ -250,9 +250,13 @@ if st.button("계산 시작"):
         'Overpressure (kPa)': overpressure_values
     })
 
-    # Impulse 관련 데이터를 두 번째 시트에 저장
+    # Distance_2 (m) 배열 추가 (impulse_1.xlsx의 첫 번째 열 데이터를 저장)
+    df_first_sheet_impulse = pd.read_excel(impulse_1_file_path, index_col=0)
+    Distance_2 = df_first_sheet_impulse.index  # 첫 번째 열 데이터
+
+    # Impulse 관련 데이터를 두 번째 시트에 저장 (Distance_2 사용)
     output_df_impulse = pd.DataFrame({
-        'Distance (m)': df_first_sheet_overpressure.index[:min_length_impulse],
+        'Distance_2 (m)': Distance_2[:min_length_impulse],
         'C_data': C_data,
         'D_data': D_data,
         'E_data': E_data,
@@ -280,13 +284,13 @@ if st.button("계산 시작"):
     axs[0].set_ylabel('Overpressure (kPa)')
     axs[0].set_title(f'{pressure_input}MPa, {volume_input}L ')
 
-    # 두 번째 그래프: Impulse
-    axs[1].plot(filtered_output_df_impulse['Distance (m)'], filtered_output_df_impulse['Impulse (kPa*s)'], marker='o', linestyle='-')
+    # 두 번째 그래프: Impulse (x축을 Distance_2 (m)로 설정)
+    axs[1].plot(filtered_output_df_impulse['Distance_2 (m)'], filtered_output_df_impulse['Impulse (kPa*s)'], marker='o', linestyle='-')
     axs[1].set_xscale('linear')
     axs[1].set_yscale('linear')
-    axs[1].set_xlabel('Distance (m)')
+    axs[1].set_xlabel('Distance_2 (m)')
     axs[1].set_ylabel('Impulse (kPa*s)')
-    axs[1].set_title('Impulse vs Distance')
+    axs[1].set_title('Impulse vs Distance_2 (m)')
 
     st.pyplot(fig)
 
