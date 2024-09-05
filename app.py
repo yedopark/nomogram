@@ -297,7 +297,7 @@ if st.button("계산 시작"):
     axs[1].set_yscale('log')
     axs[1].set_xlabel('Distance (m)')
     axs[1].set_ylabel('Impulse (kPa*s)')
-    axs[1].set_title('Impulse vs Distance (m)')
+    axs[1].set_title(f'{pressure_input}MPa, {volume_input}L ')
 
     st.pyplot(fig)
 
