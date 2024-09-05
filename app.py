@@ -19,7 +19,12 @@ Usage Guide:
    
 Developer : Yedo Park, Energy Safety Lab, Pukyong National University
 Created on : 2024. 8. 20
-Last updated : 2024. 8. 20
+Last updated : 2024. 9. 5
+
+Update on September 5, 2024
+1. Fixed an error that occurred when inputting pressure used for interpolation.
+2. Add logo and copyright
+
 
 """
 
@@ -31,9 +36,6 @@ import streamlit as st
 from io import BytesIO
 import requests
 from PIL import Image
-
-
-
 
 
 # 이미지 파일 경로 설정 (엑셀 파일과 동일한 경로)
@@ -152,7 +154,7 @@ volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0
 # 부동소수점 비교 시 허용 오차 범위를 설정
 tolerance = 0.001
 if any(abs(pressure_input - p) < tolerance for p in [20.00, 35.00, 70.00, 100.00]):
-    pressure_input += 0.00001
+    pressure_input += 0.000001
 
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
@@ -233,8 +235,8 @@ if st.button("계산 시작"):
     # Overpressure 관련 데이터를 첫 번째 시트에 저장
     output_df_overpressure = pd.DataFrame({
         'Distance (m)': df_first_sheet_overpressure.index[:min_length_overpressure],
-        'A_data': A_data,
-        'B_data': B_data_interpolated,
+        #'A_data': A_data,
+        #'B_data_interpolated': B_data_interpolated,
         'Overpressure (kPa)': overpressure_values
     })
 
@@ -245,14 +247,14 @@ if st.button("계산 시작"):
     # Impulse 관련 데이터를 두 번째 시트에 저장 (Distance_2 사용)
     output_df_impulse = pd.DataFrame({
         'Distance_2 (m)': Distance_2[:min_length_impulse],
-        'C_data': C_data,
-        'D_data': D_data,
-        'E_data': E_data,
+        #'C_data': C_data,
+        #'D_data': D_data,
+        #'E_data': E_data,
         'Impulse (kPa*s)': Impulse_data
     })
 
     # 엑셀 파일로 저장 (저장한 후 다운로드 버튼 추가)
-    output_file_path = 'output_pressure_volume_data_with_separate_sheets.xlsx'
+    output_file_path = 'output_data.xlsx'
 
     # Create a buffer to store the Excel file in memory
     with BytesIO() as buffer:
@@ -262,7 +264,7 @@ if st.button("계산 시작"):
         buffer.seek(0)  # Move the pointer to the beginning of the buffer
         # Add a download button
         st.download_button(
-            label="Download Excel File",
+            label="Download output File",
             data=buffer,
             file_name=output_file_path,
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -280,8 +282,8 @@ if st.button("계산 시작"):
 
    # 부동소수점 비교 시 허용 오차 범위를 설정
     tolerance = 0.001
-    if any(abs(pressure_input - p) < tolerance for p in [20.00001, 35.00001, 70.00001, 100.00001]):
-       pressure_input -= 0.00001
+    if any(abs(pressure_input - p) < tolerance for p in [20.000001, 35.000001, 70.000001, 100.000001]):
+       pressure_input -= 0.000001
 
     # 첫 번째 그래프: Overpressure (y축 로그 스케일)
     axs[0].plot(filtered_output_df_overpressure['Distance (m)'], filtered_output_df_overpressure['Overpressure (kPa)'], marker='o', linestyle='-')
