@@ -225,26 +225,13 @@ if st.button("계산 시작"):
     status_text.text("Finalizing data...")
     
     st.write(f"A_data 길이: {len(A_data)}")
-    st.write(f"A_data : {A_data}")
-    
     st.write(f"B_data 길이: {len(B_data_interpolated)}")
-    st.write(f"B_data_interpolated : {B_data_interpolated}")
-    
     st.write(f"Overpressure 길이: {len(overpressure_values)}")
-    st.write(f"overpressure_values : {overpressure_values}")
-    
     st.write(f"C_data 길이: {len(C_data)}")
-    st.write(f"C_data : {C_data}")
-    
     st.write(f"D_data 길이: {len(D_data)}")
-    st.write(f"D_data : {D_data}")
-    
     st.write(f"E_data 길이: {len(E_data)}")
-    st.write(f"E_data : {E_data}")
-    
     st.write(f"Impulse_data 길이: {len(Impulse_data)}")
-    st.write(f"Impulse_data: {Impulse_data}")
-    
+
     # 배열들의 길이를 동일하게 맞춤 (Overpressure 관련 데이터)
     min_length_overpressure = min(len(A_data), len(B_data_interpolated), len(overpressure_values))
     A_data = A_data.iloc[:min_length_overpressure]
