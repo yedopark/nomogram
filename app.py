@@ -269,9 +269,12 @@ if st.button("계산 시작"):
         output_df_overpressure.to_excel(writer, sheet_name='Overpressure Data', index=False)
         output_df_impulse.to_excel(writer, sheet_name='Impulse Data', index=False)
 
-    # NaN이 포함된 순서쌍 제거 후 그래프 그리기
+    # NaN이 포함된 순서쌍 제거 후 0 이하 값도 제외한 그래프 그리기
     filtered_output_df_overpressure = output_df_overpressure.dropna()
+    filtered_output_df_overpressure = filtered_output_df_overpressure[filtered_output_df_overpressure['Overpressure (kPa)'] > 0]
+
     filtered_output_df_impulse = output_df_impulse.dropna()
+    filtered_output_df_impulse = filtered_output_df_impulse[filtered_output_df_impulse['Impulse (kPa*s)'] > 0]
 
     # 그래프 생성
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))
@@ -287,7 +290,7 @@ if st.button("계산 시작"):
     # 두 번째 그래프: Impulse (x축을 Distance_2 (m)로 설정)
     axs[1].plot(filtered_output_df_impulse['Distance_2 (m)'], filtered_output_df_impulse['Impulse (kPa*s)'], marker='o', linestyle='-')
     axs[1].set_xscale('linear')
-    axs[1].set_yscale('linear')
+    axs[1].set_yscale('log')
     axs[1].set_xlabel('Distance_2 (m)')
     axs[1].set_ylabel('Impulse (kPa*s)')
     axs[1].set_title('Impulse vs Distance_2 (m)')
