@@ -150,9 +150,9 @@ pressure_input = st.number_input("압력을 입력하세요 (MPa):", min_value=0
 volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0.0, step=1.0)
 
 # 부동소수점 비교 시 허용 오차 범위를 설정
-tolerance = 0.001
-if any(abs(pressure_input - p) < tolerance for p in [20, 35, 70, 100]):
-    pressure_input += 0.0001
+#tolerance = 0.001
+#if any(abs(pressure_input - p) < tolerance for p in [20, 35, 70, 100]):
+    #pressure_input += 0.0001
 
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
@@ -216,14 +216,6 @@ if st.button("계산 시작"):
 
     progress_bar.progress(90)
     status_text.text("Finalizing data...")
-    
-    st.write(f"A_data 길이: {len(A_data)}")
-    st.write(f"B_data 길이: {len(B_data_interpolated)}")
-    st.write(f"Overpressure 길이: {len(overpressure_values)}")
-    st.write(f"C_data 길이: {len(C_data)}")
-    st.write(f"D_data 길이: {len(D_data)}")
-    st.write(f"E_data 길이: {len(E_data)}")
-    st.write(f"Impulse_data 길이: {len(Impulse_data)}")
     
     # 배열들의 길이를 동일하게 맞춤 (Overpressure 관련 데이터)
     min_length_overpressure = min(len(A_data), len(B_data_interpolated), len(overpressure_values))
