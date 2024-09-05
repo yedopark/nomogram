@@ -66,7 +66,7 @@ with col2:
     </h3>
     """, unsafe_allow_html=True)
     
-    st.write("This application calculates and visualizes data based on input pressure and volume."))
+    st.write("This application calculates and visualizes data based on input pressure and volume.")
 
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
 overpressure_1_file_path = r'overpressure_1.xlsx'
