@@ -54,8 +54,19 @@ with col1:
 with col2:
     # 중앙의 제목
     st.title("MOPIC")
-    st.subheader("Maximum OverPressure and Impulse Calculation Program for High-Pressure Hydrogen Tanks")
-    st.write("This application calculates and visualizes data based on input pressure and volume.")
+    
+    # Using st.markdown with HTML to format only specific letters in red
+    st.markdown("""
+    <h3 style='font-size:20px;'>
+    <span style='color:red;'>M</span>aximum 
+    <span style='color:red;'>O</span>verPressure and 
+    <span style='color:red;'>P</span>ressure and 
+    <span style='color:red;'>I</span>mpulse 
+    <span style='color:red;'>C</span>alculation Program for High-Pressure Hydrogen Tanks
+    </h3>
+    """, unsafe_allow_html=True)
+    
+    st.write("This application calculates and visualizes data based on input pressure and volume."))
 
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
 overpressure_1_file_path = r'overpressure_1.xlsx'
