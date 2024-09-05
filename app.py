@@ -146,8 +146,8 @@ def calculate_impulse(df, volume, e_data_value):
         return np.nan
 
 # 사용자에게 압력과 부피 입력 받기
-pressure_input = st.number_input("압력을 입력하세요:", min_value=0.0, step=1.0)
-volume_input = st.number_input("부피를 입력하세요:", min_value=0.0, step=1.0)
+pressure_input = st.number_input("압력을 입력하세요 (MPa):", min_value=0.0, step=1.0)
+volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0.0, step=1.0)
 
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
@@ -267,11 +267,22 @@ if st.button("계산 시작"):
         'Impulse (kPa*s)': Impulse_data
     })
 
-    # 엑셀 파일로 저장
+    # 엑셀 파일로 저장 (저장한 후 다운로드 버튼 추가)
     output_file_path = 'output_pressure_volume_data_with_separate_sheets.xlsx'
-    with pd.ExcelWriter(output_file_path) as writer:
-        output_df_overpressure.to_excel(writer, sheet_name='Overpressure Data', index=False)
-        output_df_impulse.to_excel(writer, sheet_name='Impulse Data', index=False)
+
+    # Create a buffer to store the Excel file in memory
+    with BytesIO() as buffer:
+        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+            output_df_overpressure.to_excel(writer, sheet_name='Overpressure Data', index=False)
+            output_df_impulse.to_excel(writer, sheet_name='Impulse Data', index=False)
+        buffer.seek(0)  # Move the pointer to the beginning of the buffer
+        # Add a download button
+        st.download_button(
+            label="Download Excel File",
+            data=buffer,
+            file_name=output_file_path,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
     # NaN이 포함된 순서쌍 제거 후 0 이하 값도 제외한 그래프 그리기
     filtered_output_df_overpressure = output_df_overpressure.dropna()
