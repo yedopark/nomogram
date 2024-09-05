@@ -150,9 +150,9 @@ pressure_input = st.number_input("압력을 입력하세요 (MPa):", min_value=0
 volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0.0, step=1.0)
 
 # 부동소수점 비교 시 허용 오차 범위를 설정
-#tolerance = 0.001
-#if any(abs(pressure_input - p) < tolerance for p in [20, 35, 70, 100]):
-    #pressure_input += 0.0001
+tolerance = 0.001
+if any(abs(pressure_input - p) < tolerance for p in [20.00, 35.00, 70.00, 100.00]):
+    pressure_input += 0.00001
 
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
@@ -290,9 +290,9 @@ if st.button("계산 시작"):
     axs[1].plot(filtered_output_df_impulse['Distance_2 (m)'], filtered_output_df_impulse['Impulse (kPa*s)'], marker='o', linestyle='-')
     axs[1].set_xscale('linear')
     axs[1].set_yscale('log')
-    axs[1].set_xlabel('Distance_2 (m)')
+    axs[1].set_xlabel('Distance (m)')
     axs[1].set_ylabel('Impulse (kPa*s)')
-    axs[1].set_title('Impulse vs Distance_2 (m)')
+    axs[1].set_title('Impulse vs Distance (m)')
 
     st.pyplot(fig)
 
