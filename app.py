@@ -149,6 +149,9 @@ def calculate_impulse(df, volume, e_data_value):
 pressure_input = st.number_input("압력을 입력하세요 (MPa):", min_value=0.0, step=1.0)
 volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0.0, step=1.0)
 
+if pressure_input in [20, 35, 70, 100]:
+    pressure_input += 0.001
+
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
     status_text.text("Loading Excel files...")
