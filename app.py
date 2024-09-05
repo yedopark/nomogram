@@ -278,6 +278,11 @@ if st.button("계산 시작"):
     # 그래프 생성
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
+   # 부동소수점 비교 시 허용 오차 범위를 설정
+    tolerance = 0.001
+    if any(abs(pressure_input - p) < tolerance for p in [20.00001, 35.00001, 70.00001, 100.00001]):
+    pressure_input -= 0.00001
+
     # 첫 번째 그래프: Overpressure (y축 로그 스케일)
     axs[0].plot(filtered_output_df_overpressure['Distance (m)'], filtered_output_df_overpressure['Overpressure (kPa)'], marker='o', linestyle='-')
     axs[0].set_xscale('linear')
