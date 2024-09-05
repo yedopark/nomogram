@@ -53,7 +53,8 @@ with col1:
 
 with col2:
     # 중앙의 제목
-    st.title("Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse")
+    st.title("MOPIC")
+    st.subheader("Maximum OverPressure and Impulse Calculation Program for High-Pressure Hydrogen Tanks")
     st.write("This application calculates and visualizes data based on input pressure and volume.")
 
 # 엑셀 파일 경로 (분리된 파일 경로로 수정)
