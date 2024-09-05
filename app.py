@@ -152,8 +152,7 @@ volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0
 # 부동소수점 비교 시 허용 오차 범위를 설정
 tolerance = 0.001
 if any(abs(pressure_input - p) < tolerance for p in [20, 35, 70, 100]):
-    pressure_input += 0.1
-    st.write(f"입력된 압력은 {pressure_input - 0.1} MPa이므로 {pressure_input} MPa로 간주합니다.")
+    pressure_input += 0.0001
 
 if st.button("계산 시작"):
     # 엑셀 파일 읽기
