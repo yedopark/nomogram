@@ -67,11 +67,9 @@ status_text = st.empty()
 # A_data 계산
 def calculate_physical_quantity(df, pressure):
     pressures = df.columns.astype(float)
-    if pressure in [20, 35, 70, 100]:
-        # 압력이 20, 35, 70, 100 중 하나인 경우, 해당 열을 A_data로 반환
+    if pressure in pressures:
         return df[pressure]
     else:
-        # 그 외의 압력 값은 interpolation 수행
         interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
         interpolated_values = interp_function(pressure)
         return pd.Series(interpolated_values, index=df.index)
@@ -92,15 +90,11 @@ def calculate_overpressure(df, pressure, b_data_value):
 # C_data 계산 (Impulse의 첫 번째 시트에서 압력에 해당하는 값)
 def calculate_c_data(df, pressure):
     pressures = df.columns.astype(float)
-    if pressure in [20, 35, 70, 100]:
-        # 압력이 20, 35, 70, 100 중 하나인 경우, 해당 열을 C_data로 반환
+    if pressure in pressures:
         return df[pressure]
     else:
-        # 그 외의 압력 값은 interpolation 수행
         interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
-        interpolated_values = interp_function(pressure)
-        return pd.Series(interpolated_values, index=df.index)
-
+        return interp_function(pressure)
     
 # D_data 계산 (Impulse의 두 번째 시트에서 부피와 C_data에 해당하는 값)
 def calculate_d_data(df, volume, c_data_value):
