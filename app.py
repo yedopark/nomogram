@@ -59,8 +59,8 @@ with col2:
     st.markdown("""
     <h3 style='font-size:20px;'>
     <span style='color:red;'>M</span>aximum 
-    <span style='color:red;'>O</span>verPressure and 
-    <span style='color:red;'>P</span>ressure and 
+    <span style='color:red;'>O</span>ver 
+    <span style='color:red;'>P</span>Pressure and
     <span style='color:red;'>I</span>mpulse 
     <span style='color:red;'>C</span>alculation Program for High-Pressure Hydrogen Tanks
     </h3>
