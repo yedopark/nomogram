@@ -89,12 +89,18 @@ def calculate_overpressure(df, pressure, b_data_value):
 
 # C_data 계산 (Impulse의 첫 번째 시트에서 압력에 해당하는 값)
 def calculate_c_data(df, pressure):
-    pressures = df.columns.astype(float)
-    if pressure in pressures:
-        return df[pressure]
-    else:
-        interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
-        return interp_function(pressure)
+    try:
+        # 컬럼이 숫자로 변환 가능한지 확인 후 변환
+        pressures = pd.to_numeric(df.columns, errors='coerce')
+        if pressure in pressures:
+            return df[pressure]
+        else:
+            interp_function = interp1d(pressures, df.values, axis=1, fill_value="extrapolate")
+            return interp_function(pressure)
+    except Exception as e:
+        st.error(f"Error in calculating C_data: {e}")
+        return None
+
     
 # D_data 계산 (Impulse의 두 번째 시트에서 부피와 C_data에 해당하는 값)
 def calculate_d_data(df, volume, c_data_value):
