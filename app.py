@@ -138,9 +138,14 @@ def calculate_impulse(df, volume, e_data_value):
         st.error(f"Error in calculating impulse: {e}")
         return np.nan
 
+# 진행 상황 표시
+progress_bar = st.progress(0)
+status_text = st.empty()
+
 if not st.session_state.calculation_done:
     if st.button("계산 시작"):
         # 엑셀 파일 읽기
+        status_text.text("Loading Excel files...")
         df_first_sheet_overpressure = pd.read_excel(overpressure_1_file_path, index_col=0)
         df_second_sheet_overpressure = pd.read_excel(overpressure_2_file_path, index_col=0)
         df_third_sheet_overpressure = pd.read_excel(overpressure_3_file_path, index_col=0)
@@ -149,10 +154,16 @@ if not st.session_state.calculation_done:
         df_second_sheet_impulse = pd.read_excel(impulse_2_file_path, index_col=0)
         df_third_sheet_impulse = pd.read_excel(impulse_3_file_path, index_col=0)
         df_fourth_sheet_impulse = pd.read_excel(impulse_4_file_path, index_col=0)
+        
+        progress_bar.progress(20)
+        status_text.text("Calculating A_data...")
 
         # A_data 계산
         A_data = calculate_physical_quantity(df_first_sheet_overpressure, pressure_input)
         A_data[A_data <= 0] = np.nan  # A_data에서 0 또는 음수 값을 NaN으로 변환
+        
+        progress_bar.progress(40)
+        status_text.text("Calculating B_data...")
 
         # B_data 계산
         if volume_input in df_second_sheet_overpressure.columns:
@@ -165,12 +176,21 @@ if not st.session_state.calculation_done:
         B_data_interpolated = pd.Series(interp_function_A(A_data), index=A_data.index)
         B_data_interpolated[B_data_interpolated <= 0] = np.nan  # B_data에서 0 또는 음수 값을 NaN으로 변환
 
+        progress_bar.progress(60)
+        status_text.text("Calculating Overpressure...")
+
         # 세 번째 시트에서 overpressure 계산
         overpressure_values = B_data_interpolated.apply(lambda x: calculate_overpressure(df_third_sheet_overpressure, pressure_input, x))
+
+        progress_bar.progress(70)
+        status_text.text("Calculating C_data...")
 
         # C_data 계산
         C_data = calculate_c_data(df_first_sheet_impulse, pressure_input)
         C_data[C_data <= 0] = np.nan  # C_data에서 0 또는 음수 값을 NaN으로 변환
+
+        progress_bar.progress(80)
+        status_text.text("Calculating D_data, E_data, and Impulse...")
 
         # D_data 계산
         D_data = [calculate_d_data(df_second_sheet_impulse, volume_input, c) for c in C_data]
@@ -183,6 +203,9 @@ if not st.session_state.calculation_done:
         for e in E_data:
             Impulse_data.append(calculate_impulse(df_fourth_sheet_impulse, volume_input, e))
 
+        progress_bar.progress(90)
+        status_text.text("Finalizing data...")
+        
         # 결과 데이터 정리
         output_df_overpressure = pd.DataFrame({
             'Distance (m)': df_first_sheet_overpressure.index,
@@ -244,6 +267,9 @@ if not st.session_state.calculation_done:
         })
         st.session_state.previous_inputs = [pressure_input, volume_input]
         st.session_state.calculation_done = True
+
+        progress_bar.progress(100)
+        status_text.text("Calculation completed.")
 
 # 계산 완료 시 "계산 완료" 버튼과 "처음으로" 버튼을 보여줌
 if st.session_state.calculation_done:
