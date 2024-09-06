@@ -258,11 +258,13 @@ if not st.session_state.calculation_done:
         # 결과 그래프 그리기 (y축 값이 0보다 작거나 같을 때 표시하지 않도록 필터링)
         fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
-        # Overpressure 그래프 데이터에서 0 이하의 값 제거
-        filtered_overpressure_df = output_df_overpressure[output_df_overpressure['Overpressure (kPa)'] > 0]
+        # Overpressure 그래프 데이터에서 0 이하의 값 제거 (데이터 타입이 숫자인지 확인 후 필터링)
+        output_df_overpressure['Overpressure (kPa)'] = pd.to_numeric(output_df_overpressure['Overpressure (kPa)'], errors='coerce')
+        filtered_overpressure_df = output_df_overpressure[output_df_overpressure['Overpressure (kPa)'] > 0].dropna()
 
-        # Impulse 그래프 데이터에서 0 이하의 값 제거
-        filtered_impulse_df = output_df_impulse[output_df_impulse['Impulse (kPa*s)'] > 0]
+        # Impulse 그래프 데이터에서 0 이하의 값 제거 (데이터 타입이 숫자인지 확인 후 필터링)
+        output_df_impulse['Impulse (kPa*s)'] = pd.to_numeric(output_df_impulse['Impulse (kPa*s)'], errors='coerce')
+        filtered_impulse_df = output_df_impulse[output_df_impulse['Impulse (kPa*s)'] > 0].dropna()
 
 
         # 첫 번째 그래프: Overpressure
