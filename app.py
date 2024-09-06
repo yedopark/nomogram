@@ -258,32 +258,44 @@ if not st.session_state.calculation_done:
         # 결과 그래프 그리기 (y축 값이 0보다 작거나 같을 때 표시하지 않도록 필터링)
         fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
-        # Overpressure 그래프 데이터에서 0 이하의 값 제거 (데이터 타입이 숫자인지 확인 후 필터링)
+        # Overpressure 그래프 데이터에서 0 이하의 값 제거 (디버깅용으로 데이터 확인)
         output_df_overpressure['Overpressure (kPa)'] = pd.to_numeric(output_df_overpressure['Overpressure (kPa)'], errors='coerce')
+
+        # 데이터 필터링 및 디버깅 출력
         filtered_overpressure_df = output_df_overpressure[output_df_overpressure['Overpressure (kPa)'] > 0].dropna()
+        print("Filtered Overpressure Data:", filtered_overpressure_df)  # 필터링된 데이터 확인
 
-        # Impulse 그래프 데이터에서 0 이하의 값 제거 (데이터 타입이 숫자인지 확인 후 필터링)
+        # Impulse 그래프 데이터에서 0 이하의 값 제거
         output_df_impulse['Impulse (kPa*s)'] = pd.to_numeric(output_df_impulse['Impulse (kPa*s)'], errors='coerce')
-        filtered_impulse_df = output_df_impulse[output_df_impulse['Impulse (kPa*s)'] > 0].dropna()
 
+        # 데이터 필터링 및 디버깅 출력
+        filtered_impulse_df = output_df_impulse[output_df_impulse['Impulse (kPa*s)'] > 0].dropna()
+        print("Filtered Impulse Data:", filtered_impulse_df)  # 필터링된 데이터 확인
 
         # 첫 번째 그래프: Overpressure
-        axs[0].plot(output_df_overpressure['Distance (m)'], output_df_overpressure['Overpressure (kPa)'], marker='o', linestyle='-')
-        axs[0].set_xscale('linear')
-        axs[0].set_yscale('log')
-        axs[0].set_xlabel('Distance (m)')
-        axs[0].set_ylabel('Overpressure (kPa)')
-        axs[0].set_title(f'{pressure_input}MPa, {volume_input}L ')
+        if not filtered_overpressure_df.empty:
+            axs[0].plot(filtered_overpressure_df['Distance (m)'], filtered_overpressure_df['Overpressure (kPa)'], marker='o', linestyle='-')
+            axs[0].set_xscale('linear')
+            axs[0].set_yscale('log')
+            axs[0].set_xlabel('Distance (m)')
+            axs[0].set_ylabel('Overpressure (kPa)')
+            axs[0].set_title(f'{pressure_input}MPa, {volume_input}L')
+        else:
+            print("No valid overpressure data to plot.")
 
         # 두 번째 그래프: Impulse
-        axs[1].plot(output_df_impulse['Distance_2 (m)'], output_df_impulse['Impulse (kPa*s)'], marker='o', linestyle='-')
-        axs[1].set_xscale('linear')
-        axs[1].set_yscale('log')
-        axs[1].set_xlabel('Distance (m)')
-        axs[1].set_ylabel('Impulse (kPa*s)')
-        axs[1].set_title(f'{pressure_input}MPa, {volume_input}L ')
+        if not filtered_impulse_df.empty:
+            axs[1].plot(filtered_impulse_df['Distance_2 (m)'], filtered_impulse_df['Impulse (kPa*s)'], marker='o', linestyle='-')
+            axs[1].set_xscale('linear')
+            axs[1].set_yscale('log')
+            axs[1].set_xlabel('Distance (m)')
+            axs[1].set_ylabel('Impulse (kPa*s)')
+            axs[1].set_title(f'{pressure_input}MPa, {volume_input}L')
+        else:
+            print("No valid impulse data to plot.")
 
         st.pyplot(fig)
+
 
         # 그래프 이미지 다운로드 버튼 추가
         buffer = BytesIO()
