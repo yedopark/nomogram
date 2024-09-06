@@ -174,6 +174,9 @@ tolerance = 0.001
 if any(abs(pressure_input - p) < tolerance for p in [20.00, 35.00, 70.00, 100.00]):
     pressure_input += 0.000001
 
+def clear_calculation_state():
+    st.session_state.calculation_done = False
+
 if not st.session_state.calculation_done:
     if st.button("계산 시작"):
         # 엑셀 파일 읽기
@@ -347,21 +350,16 @@ if not st.session_state.calculation_done:
                 
             # 계산 완료 플래그 설정
             st.session_state.calculation_done = True
+# 계산이 완료된 경우
 else:
-    # "계산 재시작" 버튼과 이전 결과 표시
-    st.write("계산이 완료되었습니다.")
-    if st.button("계산 재시작"):
-        st.session_state.calculation_done = False
+    st.write("계산 완료")
+    st.button("계산 완료", disabled=True)
 
-    # 이전에 입력했던 압력, 부피 및 결과 보여주기
-    if st.session_state.previous_inputs:
-        st.write(f"이전 입력 값: 압력 = {st.session_state.previous_inputs[0]} MPa, 부피 = {st.session_state.previous_inputs[1]} L")
-    
-    # 이전에 저장된 결과 엑셀 파일과 그래프 보기
+    # 이전 기록 보기
     for idx, result in enumerate(st.session_state.previous_results, start=1):
         st.write(f"### 이전 결과 {idx}")
         st.write(f"압력: {result['pressure']} MPa, 부피: {result['volume']} L")
-        
+
         # 엑셀 파일 다운로드 버튼
         st.download_button(
             label=f"이전 결과 {idx} 엑셀 파일 다운로드",
@@ -369,15 +367,18 @@ else:
             file_name=f"previous_result_{idx}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        
+
         # 그래프 이미지 다운로드 버튼
         st.download_button(
             label=f"이전 결과 {idx} 그래프 다운로드",
             data=result['graph'],
             file_name=f"previous_graph_{idx}.png",
             mime='image/png'
-        )    
+        )
 
+    # 계산 재시작 버튼
+    if st.button("계산 재시작"):
+        clear_calculation_state()  # 계산 상태만 초기화
     
 
 # 저작권 표시 추가
