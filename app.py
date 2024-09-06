@@ -350,6 +350,7 @@ if not st.session_state.calculation_done:
                 
             # 계산 완료 플래그 설정
             st.session_state.calculation_done = True
+            
 # 계산이 완료된 경우
 else:
     st.write("계산 완료")
@@ -358,7 +359,6 @@ else:
     # 이전 기록 보기
     for idx, result in enumerate(st.session_state.previous_results, start=1):
         st.write(f"### 이전 결과 {idx}")
-        st.write(f"압력: {result['pressure']} MPa, 부피: {result['volume']} L")
 
         # 엑셀 파일 다운로드 버튼
         st.download_button(
