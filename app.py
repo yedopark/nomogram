@@ -49,7 +49,7 @@ with col1:
     st.image(lab_logo, use_column_width=True)
 
 with col2:
-    st.title("MOPIC")
+    st.markdown("<h1 style='font-size:72px;'>MOPIC</h1>", unsafe_allow_html=True)
     st.markdown("""
     <h3 style='font-size:20px;'>
     <span style='color:red;'>M</span>aximum 
