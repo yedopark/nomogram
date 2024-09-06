@@ -45,12 +45,28 @@ if 'previous_inputs' not in st.session_state:
 
 
 
-# 사용자에게 압력과 부피 입력 받기 (고유 라벨 추가)
+# 사용자에게 압력과 부피 입력 받기 (고유 라벨 추가 및 간격 조절)
+st.markdown(
+    """
+    <style>
+    .spacing {
+        margin-top: 30px;  /* 간격을 넓히기 위해 margin-top을 설정 (원하는 값으로 조정 가능) */
+    }
+    </style>
+    """, 
+    unsafe_allow_html=True
+)
+
+# 압력 입력 필드
 st.markdown("<h3 style='font-size:24px;'>Enter Pressure (MPa):</h3>", unsafe_allow_html=True)
 pressure_input = st.number_input("Pressure", min_value=0.0, step=1.0)  # 'Pressure' 라벨 추가
 
+# 부피 입력 필드와 압력 입력 필드 사이에 간격 추가
+st.markdown("<div class='spacing'></div>", unsafe_allow_html=True)
+
 st.markdown("<h3 style='font-size:24px;'>Enter Volume (Liters):</h3>", unsafe_allow_html=True)
 volume_input = st.number_input("Volume", min_value=0.0, step=1.0)  # 'Volume' 라벨 추가
+
 
 
 
