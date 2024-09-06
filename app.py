@@ -44,8 +44,11 @@ if 'previous_inputs' not in st.session_state:
     st.session_state.previous_inputs = []
 
 # 사용자에게 압력과 부피 입력 받기
-pressure_input = st.number_input("Enter Tank Pressure (MPa):", min_value=0.0, step=1.0)
-volume_input = st.number_input("Enter Tank Volume (Liter):", min_value=0.0, step=1.0)
+st.markdown("<h3 style='font-size:24px;'>Enter Pressure (MPa):</h3>", unsafe_allow_html=True)
+pressure_input = st.number_input("", min_value=0.0, step=1.0)
+
+st.markdown("<h3 style='font-size:24px;'>Enter Volume (Liters):</h3>", unsafe_allow_html=True)
+volume_input = st.number_input("", min_value=0.0, step=1.0)
 
 # 계산 완료 시 상태 초기화
 def clear_calculation_state():
@@ -231,8 +234,15 @@ if not st.session_state.calculation_done:
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
-        # 결과 그래프 그리기
+        # 결과 그래프 그리기 (y축 값이 0보다 작거나 같을 때 표시하지 않도록 필터링)
         fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+
+        # Overpressure 그래프 데이터에서 0 이하의 값 제거
+        filtered_overpressure_df = output_df_overpressure[output_df_overpressure['Overpressure (kPa)'] > 0]
+
+        # Impulse 그래프 데이터에서 0 이하의 값 제거
+        filtered_impulse_df = output_df_impulse[output_df_impulse['Impulse (kPa*s)'] > 0]
+
 
         # 첫 번째 그래프: Overpressure
         axs[0].plot(output_df_overpressure['Distance (m)'], output_df_overpressure['Overpressure (kPa)'], marker='o', linestyle='-')
