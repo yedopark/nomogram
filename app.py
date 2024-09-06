@@ -356,10 +356,11 @@ else:
     st.write("계산 완료")
     st.button("계산 완료", disabled=True)
 
-    # 이전 기록 보기
+    # 이전에 저장된 결과 엑셀 파일과 그래프 보기
     for idx, result in enumerate(st.session_state.previous_results, start=1):
         st.write(f"### 이전 결과 {idx}")
-
+        st.write(f"압력: {result['pressure']} MPa, 부피: {result['volume']} L")
+        
         # 엑셀 파일 다운로드 버튼
         st.download_button(
             label=f"이전 결과 {idx} 엑셀 파일 다운로드",
@@ -367,14 +368,14 @@ else:
             file_name=f"previous_result_{idx}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
+        
         # 그래프 이미지 다운로드 버튼
         st.download_button(
             label=f"이전 결과 {idx} 그래프 다운로드",
             data=result['graph'],
             file_name=f"previous_graph_{idx}.png",
             mime='image/png'
-        )
+        )    
 
     # 계산 재시작 버튼
     if st.button("계산 재시작"):
