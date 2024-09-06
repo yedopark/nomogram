@@ -172,6 +172,7 @@ def perform_calculation():
     status_text.text("Calculating A_data...")
 
     # A_data 계산
+    pressure_input = []
     A_data = calculate_physical_quantity(df_first_sheet_overpressure, pressure_input)
     A_data[A_data <= 0] = np.nan  # A_data에서 0 또는 음수 값을 NaN으로 변환
     
