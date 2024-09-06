@@ -76,8 +76,6 @@ impulse_2_file_path = r'impulse_2.xlsx'
 impulse_3_file_path = r'impulse_3.xlsx'
 impulse_4_file_path = r'impulse_4.xlsx'
 
-
-
 # 진행 상황 표시
 progress_bar = st.progress(0)
 status_text = st.empty()
@@ -159,10 +157,6 @@ def calculate_impulse(df, volume, e_data_value):
         st.error(f"Error in calculating impulse: {e}")
         return np.nan
 
-def clear_calculation_state():
-    st.session_state.calculation_done = False
-
-
 # Streamlit Session State to store previous results
 if 'calculation_done' not in st.session_state:
     st.session_state.calculation_done = False
@@ -179,8 +173,6 @@ volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0
 tolerance = 0.001
 if any(abs(pressure_input - p) < tolerance for p in [20.00, 35.00, 70.00, 100.00]):
     pressure_input += 0.000001
-    
-    
 
 if not st.session_state.calculation_done:
     if st.button("계산 시작"):
@@ -340,26 +332,36 @@ if not st.session_state.calculation_done:
             progress_bar.progress(100)
             status_text.text("Calculation completed.")
             
-            # 기록하기 버튼
-            if st.button("기록하기"):
-                if len(st.session_state.previous_results) >= 5:
-                    st.session_state.previous_results.pop(0)  # 가장 오래된 기록 삭제
-
-                st.session_state.previous_results.append({
-                    'pressure': pressure_input,
-                    'volume': volume_input,
-                    'output_file_path': output_file_path,
-                    'graph': buffer.getvalue()  # 그래프 이미지 저장
-                })
+        # Mock calculation results
+            output_file_path = 'output_data.xlsx'
+            result_graph_buffer = BytesIO()  # Mock buffer for the graph image
+                
+                # 임시 결과 저장
+            st.session_state.previous_results.append({
+                'pressure': pressure_input,
+                'volume': volume_input,
+                'output_file_path': output_file_path,
+                'graph': result_graph_buffer
+            })
+            st.session_state.previous_inputs = [pressure_input, volume_input]
+                
+            # 계산 완료 플래그 설정
+            st.session_state.calculation_done = True
 else:
-    st.write("계산 완료")
-    st.button("계산 완료", disabled=True)
+    # "계산 재시작" 버튼과 이전 결과 표시
+    st.write("계산이 완료되었습니다.")
+    if st.button("계산 재시작"):
+        st.session_state.calculation_done = False
 
-    # 이전 기록 보기
+    # 이전에 입력했던 압력, 부피 및 결과 보여주기
+    if st.session_state.previous_inputs:
+        st.write(f"이전 입력 값: 압력 = {st.session_state.previous_inputs[0]} MPa, 부피 = {st.session_state.previous_inputs[1]} L")
+    
+    # 이전에 저장된 결과 엑셀 파일과 그래프 보기
     for idx, result in enumerate(st.session_state.previous_results, start=1):
         st.write(f"### 이전 결과 {idx}")
         st.write(f"압력: {result['pressure']} MPa, 부피: {result['volume']} L")
-
+        
         # 엑셀 파일 다운로드 버튼
         st.download_button(
             label=f"이전 결과 {idx} 엑셀 파일 다운로드",
@@ -367,17 +369,14 @@ else:
             file_name=f"previous_result_{idx}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
+        
         # 그래프 이미지 다운로드 버튼
         st.download_button(
             label=f"이전 결과 {idx} 그래프 다운로드",
             data=result['graph'],
             file_name=f"previous_graph_{idx}.png",
             mime='image/png'
-        )
-
-    if st.button("계산 재시작"):
-        clear_calculation_state()
+        )    
 
     
 
