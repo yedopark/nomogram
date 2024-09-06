@@ -1,10 +1,42 @@
+"""
+Calculation Program in Hydrogen Tank Explosion Overpressure and Impulse - version 1.0
+
+Description
+: This Python code calculates overpressure and impulse resulting from the explosion of a high-pressure hydrogen tank.
+It receives pressure and volume inputs from the user and uses nomogram data to compute the overpressure and impulse.
+The nomogram data is referenced from the paper "Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram"
+by Sergii Kashkarov, Zhiyong Li, and Vladimir Molkov. 
+Both the code and the nomogram data are uploaded on GitHub and can be accessed by anyone through the link "https://nomogram-mntketbfejckna9g4hqe52.streamlit.app/".
+
+Usage Guide:
+1. Input Values:
+   - Pressure (MPa): Enter the pressure value at which the tank explodes.
+   - Volume (Liters): Enter the volume of the hydrogen tank.
+   These inputs help in calculating the overpressure and impulse due to the explosion based on scientific models and empirical data.
+2. Output:
+   - The program outputs graphs showing the overpressure and impulse as a function of distance from the explosion site.
+   - Detailed data tables and downloadable Excel files containing the calculated values are also provided for further analysis.
+   
+Developer : Yedo Park, Energy Safety Lab, Pukyong National University
+Created on : 2024. 8. 20
+Last updated : 2024. 9. 5
+
+Update on September 5, 2024
+1. Fixed an error that occurred when inputting pressure used for interpolation.
+2. Add logo and copyright
+
+
+"""
+
 import pandas as pd
 from scipy.interpolate import interp1d
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 from io import BytesIO
+import requests
 from PIL import Image
+
 
 # 이미지 파일 경로 설정 (엑셀 파일과 동일한 경로)
 image_directory = r'.'  # 현재 디렉토리
@@ -144,11 +176,8 @@ if any(abs(pressure_input - p) < tolerance for p in [20.00, 35.00, 70.00, 100.00
 
 def clear_calculation_state():
     st.session_state.calculation_done = False
-    st.session_state.previous_results = []
-    st.session_state.previous_inputs = []
 
 if not st.session_state.calculation_done:
-    # 계산 시작 버튼을 표시하고, 계산이 완료되면 버튼을 비활성화
     if st.button("계산 시작"):
         # 엑셀 파일 읽기
         status_text.text("Loading Excel files...")
@@ -228,6 +257,8 @@ if not st.session_state.calculation_done:
         # Overpressure 관련 데이터를 첫 번째 시트에 저장
         output_df_overpressure = pd.DataFrame({
             'Distance (m)': df_first_sheet_overpressure.index[:min_length_overpressure],
+            #'A_data': A_data,
+            #'B_data_interpolated': B_data_interpolated,
             'Overpressure (kPa)': overpressure_values
         })
 
@@ -238,6 +269,9 @@ if not st.session_state.calculation_done:
         # Impulse 관련 데이터를 두 번째 시트에 저장 (Distance_2 사용)
         output_df_impulse = pd.DataFrame({
             'Distance_2 (m)': Distance_2[:min_length_impulse],
+            #'C_data': C_data,
+            #'D_data': D_data,
+            #'E_data': E_data,
             'Impulse (kPa*s)': Impulse_data
         })
 
@@ -301,27 +335,52 @@ if not st.session_state.calculation_done:
             progress_bar.progress(100)
             status_text.text("Calculation completed.")
             
-        # 계산 완료 후 상태를 업데이트하고 저장
-        st.session_state.calculation_done = True
-        
-        # 결과 저장
-        st.session_state.previous_results.append({
-            'pressure': pressure_input,
-            'volume': volume_input,
-            'output_file_path': output_file_path,
-            'graph': buffer
-        })
-
+        # Mock calculation results
+            output_file_path = 'output_data.xlsx'
+            result_graph_buffer = BytesIO()  # Mock buffer for the graph image
+                
+                # 임시 결과 저장
+            st.session_state.previous_results.append({
+                'pressure': pressure_input,
+                'volume': volume_input,
+                'output_file_path': output_file_path,
+                'graph': result_graph_buffer
+            })
+            st.session_state.previous_inputs = [pressure_input, volume_input]
+                
+            # 계산 완료 플래그 설정
+            st.session_state.calculation_done = True
+            
+# 계산이 완료된 경우
 else:
-    # 계산 완료 시 버튼을 한 줄에 배치
-    col1, col2 = st.columns([1, 1])
+    st.write("계산 완료")
+    st.button("계산 완료", disabled=True)
+
+    # 이전에 저장된 결과 엑셀 파일과 그래프 보기
+    for idx, result in enumerate(st.session_state.previous_results, start=1):
+        st.write(f"### 이전 결과 {idx}")
+        st.write(f"압력: {result['pressure']} MPa, 부피: {result['volume']} L")
+        
+        # 엑셀 파일 다운로드 버튼
+        st.download_button(
+            label=f"이전 결과 {idx} 엑셀 파일 다운로드",
+            data=result['output_file_path'],
+            file_name=f"previous_result_{idx}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        
+        # 그래프 이미지 다운로드 버튼
+        st.download_button(
+            label=f"이전 결과 {idx} 그래프 다운로드",
+            data=result['graph'],
+            file_name=f"previous_graph_{idx}.png",
+            mime='image/png'
+        )    
+
+    # 계산 재시작 버튼
+    if st.button("계산 재시작"):
+        clear_calculation_state()  # 계산 상태만 초기화
     
-    with col1:
-        st.button("계산 완료", disabled=True)
-    
-    with col2:
-        if st.button("계산 재시작"):
-            clear_calculation_state()  # 계산 상태 초기화
 
 # 저작권 표시 추가
 st.markdown("---")  # 구분선을 추가하여 시각적으로 구분
