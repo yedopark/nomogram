@@ -22,18 +22,19 @@ with col1:
 
 with col2:
     # 중앙의 제목
-    st.markdown("<h1 style='font-size:72px;'>MOPIC</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='font-size:72px;'>MOPICAP</h1>", unsafe_allow_html=True)
     
     st.markdown("""
     <h3 style='font-size:20px;'>
     <span style='color:red;'>M</span>aximum 
     <span style='color:red;'>O</span>ver<span style='color:red;'>P</span>ressure and
     <span style='color:red;'>I</span>mpulse 
-    <span style='color:red;'>C</span>alculation Program for High-Pressure Hydrogen Tanks Explosion
+    <span style='color:red;'>Ca</span>lculation
+    <span style='color:red;'>P</span>rogram for High-Pressure Hydrogen Tanks Explosion
     </h3>
     """, unsafe_allow_html=True)
     
-    st.write("This application calculates and visualizes data based on input pressure and volume.")
+    st.write("This program was developed with reference to the paper by Kashkarov, S., Li, Z., & Molkov, V. (2021), titled 'Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram,' published in the International Journal of Hydrogen Energy, 46(58), 29900-29909. (The tank temperature is based on 20°C).")
 
 # Streamlit Session State to store previous results
 if 'calculation_done' not in st.session_state:
@@ -348,7 +349,7 @@ st.markdown(
     """
     <p style="text-align: center; color: gray; font-size: 12px;">
     © 2024 Energy Safety Laboratory, Pukyong National University. All rights reserved.<br>
-    Reference: Kashkarov, S., Li, Z., & Molkov, V. (2021). Blast wave from a hydrogen tank rupture in a fire in the open: Hazard distance nomogram. International Journal of Hydrogen Energy, 46(58), 29900-29909.
+
     </p>
     """, unsafe_allow_html=True
 )
