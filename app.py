@@ -29,7 +29,7 @@ with col2:
     <span style='color:red;'>M</span>aximum 
     <span style='color:red;'>O</span>ver<span style='color:red;'>P</span>ressure and
     <span style='color:red;'>I</span>mpulse 
-    <span style='color:red;'>C</span>alculation Program for High-Pressure Hydrogen Tanks
+    <span style='color:red;'>C</span>alculation Program for High-Pressure Hydrogen Tanks Explosion
     </h3>
     """, unsafe_allow_html=True)
     
@@ -44,8 +44,8 @@ if 'previous_inputs' not in st.session_state:
     st.session_state.previous_inputs = []
 
 # 사용자에게 압력과 부피 입력 받기
-pressure_input = st.number_input("압력을 입력하세요 (MPa):", min_value=0.0, step=1.0)
-volume_input = st.number_input("부피를 입력하세요 (Liter):", min_value=0.0, step=1.0)
+pressure_input = st.number_input("Enter Tank Pressure (MPa):", min_value=0.0, step=1.0)
+volume_input = st.number_input("Enter Tank Volume (Liter):", min_value=0.0, step=1.0)
 
 # 계산 완료 시 상태 초기화
 def clear_calculation_state():
@@ -143,7 +143,7 @@ progress_bar = st.progress(0)
 status_text = st.empty()
 
 if not st.session_state.calculation_done:
-    if st.button("계산 시작"):
+    if st.button("Start Calculation"):
         # 엑셀 파일 읽기
         status_text.text("Loading Excel files...")
         df_first_sheet_overpressure = pd.read_excel(overpressure_1_file_path, index_col=0)
@@ -225,7 +225,7 @@ if not st.session_state.calculation_done:
                 output_df_impulse.to_excel(writer, sheet_name='Impulse Data', index=False)
             buffer.seek(0)
             st.download_button(
-                label="Download output File",
+                label="Download Result Excel File",
                 data=buffer,
                 file_name=output_file_path,
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -273,18 +273,17 @@ if not st.session_state.calculation_done:
 
 # 계산 완료 시 "계산 완료" 버튼과 "처음으로" 버튼을 보여줌
 if st.session_state.calculation_done:
-    st.button("계산 완료", disabled=True)  # 계산 완료 버튼은 비활성화
-    if st.button("처음으로"):
+    if st.button("Start Over"):
         clear_calculation_state()  # 계산 상태만 초기화
 
 # 이전에 저장된 결과 엑셀 파일과 그래프 보기
 for idx, result in enumerate(st.session_state.previous_results, start=1):
-    st.write(f"### 이전 결과 {idx}")
-    st.write(f"압력: {result['pressure']} MPa, 부피: {result['volume']} L")
+    st.write(f"### Previous Results {idx}")
+    st.write(f"Pressure: {result['pressure']} MPa, Volume: {result['volume']} L")
     
     # 엑셀 파일 다운로드 버튼
     st.download_button(
-        label=f"이전 결과 {idx} 엑셀 파일 다운로드",
+        label=f"Download Previous Results {idx} Excel File",
         data=result['output_file_path'],
         file_name=f"previous_result_{idx}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -292,7 +291,7 @@ for idx, result in enumerate(st.session_state.previous_results, start=1):
     
     # 그래프 이미지 다운로드 버튼
     st.download_button(
-        label=f"이전 결과 {idx} 그래프 다운로드",
+        label=f"Download Previous Results {idx} Graph image",
         data=result['graph'],
         file_name=f"previous_graph_{idx}.png",
         mime='image/png'
