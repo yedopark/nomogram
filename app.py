@@ -48,7 +48,7 @@ st.markdown(
     """
     <style>
     .input-container {
-        margin-bottom: -10px;  /* 입력 필드와 텍스트 사이의 간격 줄이기 */
+        margin-bottom: -20px;  /* 입력 필드와 텍스트 사이의 간격 줄이기 */
     }
     </style>
     """, 
