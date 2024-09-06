@@ -45,10 +45,10 @@ if 'previous_inputs' not in st.session_state:
 
 # 사용자에게 압력과 부피 입력 받기
 st.markdown("<h3 style='font-size:24px;'>Enter Pressure (MPa):</h3>", unsafe_allow_html=True)
-pressure_input = st.number_input( min_value=0.0, step=1.0)
+pressure_input = st.number_input("Pressure", min_value=0.0, step=1.0)
 
 st.markdown("<h3 style='font-size:24px;'>Enter Volume (Liters):</h3>", unsafe_allow_html=True)
-volume_input = st.number_input( min_value=0.0, step=1.0)
+volume_input = st.number_input("Volume", min_value=0.0, step=1.0)
 
 # 계산 완료 시 상태 초기화
 def clear_calculation_state():
