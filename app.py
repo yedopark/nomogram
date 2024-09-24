@@ -348,7 +348,7 @@ st.markdown("---")  # 구분선을 추가하여 시각적으로 구분
 st.markdown(
     """
     <p style="text-align: center; color: gray; font-size: 12px;">
-    © 2024 Energy Safety Laboratory, Pukyong National University. All rights reserved.<br>
+    Copyright © 2024 Energy Safety Laboratory, Pukyong National University. All rights reserved.<br>
 
     </p>
     """, unsafe_allow_html=True
